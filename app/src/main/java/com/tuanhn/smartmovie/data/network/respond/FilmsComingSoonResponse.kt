@@ -1,11 +1,11 @@
 package com.tuanhn.smartmovie.data.network.respond
 
 data class FilmsComingSoonResponse(
-    val films: List<Film>,
+    val films: List<FilmRespond>,
     val status: Status
 )
 
-data class Film(
+data class FilmRespond(
     val film_id: Int,
     val imdb_id: Int,
     val imdb_title_id: String,

@@ -1,6 +1,7 @@
-package com.tuanhn.smartmovie.screen.homescreen
+package com.tuanhn.smartmovie.screen.userscreen
 
 import android.app.Activity
+import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
@@ -13,14 +14,13 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.view.ViewCompat
 import androidx.navigation.Navigation
-import com.google.android.material.tabs.TabLayoutMediator
 import com.tuanhn.smartmovie.R
-import com.tuanhn.smartmovie.adapter.ViewPagerAdapter
-import com.tuanhn.smartmovie.databinding.FragmentHomeBinding
+import com.tuanhn.smartmovie.databinding.FragmentLoginBinding
+import com.tuanhn.smartmovie.databinding.FragmentUserBinding
 
-class HomeFragment : Fragment() {
+class UserFragment : Fragment() {
 
-    private var binding: FragmentHomeBinding? = null
+    private var binding: FragmentUserBinding? = null
 
     private val handler = Handler(Looper.getMainLooper())
 
@@ -30,49 +30,26 @@ class HomeFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        binding = FragmentUserBinding.inflate(inflater, container, false)
 
-        binding = FragmentHomeBinding.inflate(inflater, container, false)
         return binding?.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setupView()
 
-        setButtonMoveEvent(requireActivity())
+        val sharedPreferences = context?.getSharedPreferences("current_user", Context.MODE_PRIVATE)
+
+        val savedString = sharedPreferences?.getString("current_user", "default_value")
+
+        binding?.tvAccount?.text = savedString
+
+        binding?.layoutAccountInfor?.setOnClickListener {
+            Navigation.findNavController(view).navigate(R.id.action_userFragment_to_accountInformationFragment)
+        }
     }
 
-
-    private fun setupView() {
-
-        setUpAdapter()
-
-    }
-
-
-    private fun setUpAdapter() {
-
-        val viewPager = binding?.viewPager2
-
-        val tabLayout = binding?.tabLayout
-
-        val adapter = ViewPagerAdapter(requireActivity())
-
-        adapter.addFragment(NowPlayingFragment(), "Now Playing")
-        adapter.addFragment(ComingSoonFragment(), "Coming Soon")
-
-        viewPager?.adapter = adapter
-
-        //create all fragments
-        binding?.viewPager2?.offscreenPageLimit = adapter.itemCount
-
-        // Attach the ViewPager to the TabLayout
-        TabLayoutMediator(tabLayout!!, viewPager!!) { tab, position ->
-            tab.text = adapter.getPageTitle(position)
-        }.attach()
-    }
-
-    private fun setButtonMoveEvent(activity: Activity) {
+    fun setButtonMoveEvent(activity: Activity) {
 
         val btnSearchFragment = activity.findViewById<TextView>(R.id.btnsearchFragment)
 
@@ -210,7 +187,7 @@ class HomeFragment : Fragment() {
         /* if (tvChoice.text.equals(getString(R.string.genres_title)))
              Navigation.findNavController(view).navigate(R.id.genresFragment)
 */
-         if (tvChoice.text.equals(getString(R.string.artists_title)))
-             Navigation.findNavController(view).navigate(R.id.userFragment)
+        if (tvChoice.text.equals(getString(R.string.artists_title)))
+            Navigation.findNavController(view).navigate(R.id.userFragment)
     }
 }

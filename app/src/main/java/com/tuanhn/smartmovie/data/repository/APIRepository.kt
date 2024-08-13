@@ -11,7 +11,10 @@ import com.tuanhn.smartmovie.data.model.entities.AgeRating
 import com.tuanhn.smartmovie.data.model.entities.Film
 import com.tuanhn.smartmovie.data.network.ApiService
 import com.tuanhn.smartmovie.data.network.respond.Cinema
+import com.tuanhn.smartmovie.data.network.respond.FilmRespond
 import com.tuanhn.smartmovie.data.network.respond.Images
+import com.tuanhn.smartmovie.data.network.respond.SearchFilmRespond
+import com.tuanhn.smartmovie.data.network.respond.SearchRespond
 import com.tuanhn.smartmovie.data.utils.Constants
 import com.tuanhn4.smartmovie.data.utils.UiState
 import kotlinx.coroutines.CoroutineDispatcher
@@ -35,22 +38,36 @@ class APIRepository @Inject constructor(
 
     private val scope = CoroutineScope(ioDispatcher)
 
-
     private val client = "STUD_356"
+
     private val authentication = "Basic U1RVRF8zNTZfWFg6bDlIUWx1ZzluZ2oy"
+
     private val territory = "XX"
+
     private val apiVersion = "v200"
+
     private val geolocation = "-22.0;14.0"
+
     private val currentDateTime = LocalDateTime.now()
+
     private val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+
     private val formattedDateTime = currentDateTime.format(formatter)
+
     private val _callAPIShowTime = MutableLiveData<UiState<List<Cinema>>>(UiState.Loading)
 
     val callAPIShowTime: LiveData<UiState<List<Cinema>>> = _callAPIShowTime
 
+    private val _callAPISearch = MutableLiveData<UiState<List<SearchFilmRespond>>>(UiState.Loading)
+
+    val callAPISearch: LiveData<UiState<List<SearchFilmRespond>>> = _callAPISearch
+
     suspend fun getAPIShowTime(n: Int, filmID: Int) {
+
         scope.launch {
+
             try {
+
                 val respond = apiServiceDI.getFilmShowTime(
                     client,
                     apiKey,
@@ -63,7 +80,7 @@ class APIRepository @Inject constructor(
                     filmID,
                     formattedDateTime
                 )
-                Log.d("sdvvcc", respond.body()?.cinemas?.toString()!!)
+
                 if (respond.isSuccessful) {
                     val cinemas = respond.body()?.cinemas
                     cinemas?.let {
@@ -75,6 +92,35 @@ class APIRepository @Inject constructor(
 
             } catch (e: Exception) {
                 _callAPIShowTime.postValue(UiState.Error(Error("Failed")))
+            }
+        }
+    }
+
+    suspend fun getAPISearch(n: Int, query: String) {
+        scope.launch {
+            try {
+                val respond = apiServiceDI.searchFilm(
+                    client,
+                    apiKey,
+                    authentication,
+                    territory,
+                    apiVersion,
+                    geolocation,
+                    LocalDateTime.now().toString() + "Z",
+                    n,
+                    query
+                )
+                if (respond.isSuccessful) {
+                    val films = respond.body()?.films
+                    films?.let {films->
+                        _callAPISearch.postValue(UiState.Success(films))
+                    }
+                } else {
+                    _callAPISearch.postValue(UiState.Error(Error("Failed")))
+                }
+
+            } catch (e: Exception) {
+                _callAPISearch.postValue(UiState.Error(Error("Failed")))
             }
         }
     }

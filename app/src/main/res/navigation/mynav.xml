@@ -79,4 +79,44 @@
             android:name="listFilm"
             app:argType="com.tuanhn.smartmovie.data.model.entities.Film" />
     </fragment>
+    <fragment
+        android:id="@+id/searchFragment"
+        android:name="com.tuanhn.smartmovie.screen.searchscreen.SearchFragment"
+        android:label="fragment_search"
+        tools:layout="@layout/fragment_search" >
+        <action
+            android:id="@+id/action_searchFragment_to_detailFilm"
+            app:destination="@id/detailFilm" />
+    </fragment>
+    <fragment
+        android:id="@+id/userFragment"
+        android:name="com.tuanhn.smartmovie.screen.userscreen.UserFragment"
+        android:label="fragment_user"
+        tools:layout="@layout/fragment_user" >
+        <action
+            android:id="@+id/action_userFragment_to_accountInformationFragment"
+            app:destination="@id/accountInformationFragment" />
+        <action
+            android:id="@+id/action_userFragment_to_purchaseHistoryFragment"
+            app:destination="@id/purchaseHistoryFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/accountInformationFragment"
+        android:name="com.tuanhn.smartmovie.screen.userscreen.AccountInformationFragment"
+        android:label="fragment_account_information"
+        tools:layout="@layout/fragment_account_information" >
+        <action
+            android:id="@+id/action_accountInformationFragment_to_changePasswordFragment"
+            app:destination="@id/changePasswordFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/purchaseHistoryFragment"
+        android:name="com.tuanhn.smartmovie.screen.userscreen.PurchaseHistoryFragment"
+        android:label="fragment_purchase_history"
+        tools:layout="@layout/fragment_purchase_history" />
+    <fragment
+        android:id="@+id/changePasswordFragment"
+        android:name="com.tuanhn.smartmovie.screen.userscreen.ChangePasswordFragment"
+        android:label="fragment_change_password"
+        tools:layout="@layout/fragment_change_password" />
 </navigation>

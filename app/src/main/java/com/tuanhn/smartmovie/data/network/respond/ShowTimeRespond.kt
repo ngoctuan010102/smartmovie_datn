@@ -1,7 +1,7 @@
 package com.tuanhn.smartmovie.data.network.respond
 
 data class ShowTimeRespond(
-    val films: Film,
+    val films: FilmRespond,
     val cinemas: List<Cinema>
 )
 data class Cinema(

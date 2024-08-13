@@ -40,20 +40,21 @@ class ComingSoonFragment : Fragment() {
         //initial adapter
         adapterVertical = MovieVerticalAdapter(listOf())
 
-        binding?.recyclerView?.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
+        binding?.recyclerView?.layoutManager =
+            LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
 
         binding?.recyclerView?.adapter = adapterVertical
         //observe Data
         observeData()
 
+        // setButtonMoveEvent(requireActivity())
 
         //refresh data
-        /*     binding?.let { bind ->
-                 bind.swipeRefreshLayout.setOnRefreshListener {
-                     viewModelAPI.refreshAPINowPlayingMovies("1")
-                     bind.swipeRefreshLayout.isRefreshing = false
-                 }
-             }*/
+        binding?.let { bind ->
+            bind.swipeRefreshLayout.setOnRefreshListener {
+                bind.swipeRefreshLayout.isRefreshing = false
+            }
+        }
         //load more data
         /*        binding?.let { bind ->
 
@@ -77,12 +78,11 @@ class ComingSoonFragment : Fragment() {
     }
 
 
-
-    fun observeData() {
+    private fun observeData() {
         with(viewModelDB) {
             getAllFilms().observe(viewLifecycleOwner, Observer { list ->
 
-                for(item in list)
+                for (item in list)
                     Log.d("HS", item.toString())
 
                 adapterVertical?.let { adapter ->

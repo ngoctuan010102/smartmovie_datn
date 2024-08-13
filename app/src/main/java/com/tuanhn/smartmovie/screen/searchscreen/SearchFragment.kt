@@ -1,76 +1,160 @@
-package com.tuanhn.smartmovie.screen.homescreen
+package com.tuanhn.smartmovie.screen.searchscreen
 
 import android.app.Activity
+import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import androidx.fragment.app.Fragment
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
 import androidx.core.view.ViewCompat
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
 import androidx.navigation.Navigation
-import com.google.android.material.tabs.TabLayoutMediator
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.tuanhn.smartmovie.R
-import com.tuanhn.smartmovie.adapter.ViewPagerAdapter
-import com.tuanhn.smartmovie.databinding.FragmentHomeBinding
+import com.tuanhn.smartmovie.data.network.respond.SearchFilmRespond
+import com.tuanhn.smartmovie.databinding.FragmentSearchBinding
+import com.tuanhn.smartmovie.viewmodels.ViewModelAPI
+import com.tuanhn4.smartmovie.data.utils.UiState
+import dagger.hilt.android.AndroidEntryPoint
 
-class HomeFragment : Fragment() {
+@AndroidEntryPoint
+class SearchFragment : Fragment() {
 
-    private var binding: FragmentHomeBinding? = null
+    private val viewModelAPI: ViewModelAPI by viewModels()
+
+    private lateinit var binding: FragmentSearchBinding
+
+    private var adapter: SearchAdapter? = null
+
+    //private var queryText: String? = null
 
     private val handler = Handler(Looper.getMainLooper())
 
     private var isButtonClicked = false
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
 
-        binding = FragmentHomeBinding.inflate(inflater, container, false)
-        return binding?.root
+        binding = FragmentSearchBinding.inflate(LayoutInflater.from(context), container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setupView()
 
         setButtonMoveEvent(requireActivity())
+        //val list: MutableList<SearchFilmRespond> = mutableListOf()
+
+
+        setUpAdapter(listOf())
+
+        binding?.tvCancel?.setOnClickListener { tv ->
+            adapter?.updateMovies(listOf())
+            binding.edtSearch.text = null
+            closeKeyboard()
+            tv.visibility = View.GONE
+        }
+
+        observeData() // can review the history
+
+        //setEvent(view)
+
+        setEventForEdtSearch()
+    }
+
+    private fun observeData() {
+
+        viewModelAPI.getStateSearch().observe(
+            viewLifecycleOwner,
+            Observer { state ->
+                when (state) {
+                    is UiState.Loading -> {}
+                    is UiState.Error -> {}
+                    is UiState.Success -> {
+                        adapter?.updateMovies(state.data)
+                    }
+                }
+            })
     }
 
 
-    private fun setupView() {
+    private fun setUpAdapter(list: List<SearchFilmRespond>) {
 
-        setUpAdapter()
+        adapter = SearchAdapter(list)
 
+        with(binding) {
+
+            rcvSearch.layoutManager =
+                LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
+
+            rcvSearch.adapter = adapter
+        }
     }
 
 
-    private fun setUpAdapter() {
+    private fun setEventForEdtSearch() {
+        val typingDelay: Long = 1000
 
-        val viewPager = binding?.viewPager2
+        val handler = Handler(Looper.getMainLooper())
 
-        val tabLayout = binding?.tabLayout
+        var userStoppedTypingRunnable: Runnable? = null
 
-        val adapter = ViewPagerAdapter(requireActivity())
+        binding.edtSearch.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(
+                s: CharSequence?,
+                start: Int,
+                count: Int,
+                after: Int
+            ) {
+            }
 
-        adapter.addFragment(NowPlayingFragment(), "Now Playing")
-        adapter.addFragment(ComingSoonFragment(), "Coming Soon")
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                userStoppedTypingRunnable?.let { handler.removeCallbacks(it) }
 
-        viewPager?.adapter = adapter
+                binding?.searchProgressBar?.visibility = View.VISIBLE
+            }
 
-        //create all fragments
-        binding?.viewPager2?.offscreenPageLimit = adapter.itemCount
+            override fun afterTextChanged(s: Editable?) {
 
-        // Attach the ViewPager to the TabLayout
-        TabLayoutMediator(tabLayout!!, viewPager!!) { tab, position ->
-            tab.text = adapter.getPageTitle(position)
-        }.attach()
+                userStoppedTypingRunnable = Runnable {
+
+                    val query = s.toString()
+
+                    if (query.isNotEmpty()) {
+
+                        callAPI(query)
+
+                        //  queryText = query
+
+                        binding.tvCancel.visibility = View.VISIBLE
+
+                        binding.searchProgressBar.visibility = View.GONE
+                    } else
+                        adapter?.updateMovies(listOf())
+                }
+
+                handler.postDelayed(userStoppedTypingRunnable!!, typingDelay)
+            }
+        })
     }
+
+    private fun callAPI(query: String) {
+        viewModelAPI.getAPISearch(100, query)
+    }
+
 
     private fun setButtonMoveEvent(activity: Activity) {
 
@@ -87,9 +171,7 @@ class HomeFragment : Fragment() {
 
             val tvSearch = activity.findViewById<TextView>(R.id.tvSearch)
 
-            binding?.let { bind ->
-                setMoveEvent(bind.root, btnSearchFragment, tvSearch, activity)
-            }
+            setMoveEvent(binding.root, btnSearchFragment, tvSearch, activity)
         }
 
         val btnGenres = activity.findViewById<TextView>(R.id.btnGenres)
@@ -105,9 +187,7 @@ class HomeFragment : Fragment() {
 
 
             val tvGenres = activity.findViewById<TextView>(R.id.tvGenres)
-            binding?.let { bind ->
-                setMoveEvent(bind.root, btnGenres, tvGenres, activity)
-            }
+            setMoveEvent(binding.root, btnGenres, tvGenres, activity)
         }
 
         val btnArtists = activity.findViewById<TextView>(R.id.btnArtists)
@@ -122,10 +202,7 @@ class HomeFragment : Fragment() {
 
 
             val tvArtists = activity.findViewById<TextView>(R.id.tvArtists)
-
-            binding?.let { bind ->
-                setMoveEvent(bind.root, btnArtists, tvArtists, activity)
-            }
+            setMoveEvent(binding.root, btnArtists, tvArtists, activity)
         }
 
         val btnDiscover = activity.findViewById<TextView>(R.id.btnHome)
@@ -140,9 +217,7 @@ class HomeFragment : Fragment() {
 
             val tvDiscover = activity.findViewById<TextView>(R.id.tvHome)
 
-            binding?.let { bind ->
-                setMoveEvent(bind.root, btnDiscover, tvDiscover, activity)
-            }
+            setMoveEvent(binding.root, btnDiscover, tvDiscover, activity)
         }
     }
 
@@ -210,7 +285,19 @@ class HomeFragment : Fragment() {
         /* if (tvChoice.text.equals(getString(R.string.genres_title)))
              Navigation.findNavController(view).navigate(R.id.genresFragment)
 */
-         if (tvChoice.text.equals(getString(R.string.artists_title)))
-             Navigation.findNavController(view).navigate(R.id.userFragment)
+        if (tvChoice.text.equals(getString(R.string.artists_title)))
+            Navigation.findNavController(view).navigate(R.id.userFragment)
+    }
+
+    private fun closeKeyboard() {
+
+        val keyboard =
+            requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+
+        val view = requireActivity().currentFocus
+
+        if (view != null) {
+            keyboard.hideSoftInputFromWindow(view.windowToken, 0)
+        }
     }
 }

@@ -3,6 +3,8 @@ package com.tuanhn.smartmovie.screen.loginscreen
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Base64
 import android.view.LayoutInflater
 import android.view.View
@@ -24,6 +26,10 @@ import javax.crypto.spec.SecretKeySpec
 class LoginFragment : Fragment() {
 
     private var binding: FragmentLoginBinding? = null
+
+    private val handler = Handler(Looper.getMainLooper())
+
+    private var isButtonClicked = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -47,6 +53,15 @@ class LoginFragment : Fragment() {
 
             bind.btnLogin?.setOnClickListener {
 
+                if (isButtonClicked) return@setOnClickListener
+                isButtonClicked = true
+
+                handler.postDelayed({
+                    isButtonClicked = false
+                }, 1000)
+
+                bind.loginProgressBar.visibility = View.VISIBLE
+
                 val userName = bind.edtUserName.text.toString()
 
                 val password = bind.edtPassword.text.toString()
@@ -55,6 +70,8 @@ class LoginFragment : Fragment() {
 
                     Toast.makeText(context, "Please fill in the blank field!", Toast.LENGTH_SHORT)
                         .show()
+
+                    isButtonClicked = false
                 } else {
                     checkAccount(view, userName, password)
                 }
@@ -101,6 +118,14 @@ class LoginFragment : Fragment() {
 
                 if (userExists) {
 
+                    val sharedPreferences = context?.getSharedPreferences("current_user", Context.MODE_PRIVATE)
+
+                    val editor = sharedPreferences?.edit()
+
+                    editor?.putString("current_user", userName) // Ví dụ lưu một chuỗi
+
+                    editor?.apply()
+
                     val activity = requireActivity()
 
                     val intent = Intent(activity.applicationContext, MainActivity::class.java)
@@ -109,15 +134,15 @@ class LoginFragment : Fragment() {
 
                     activity.finish()
 
-                    Toast.makeText(context, "Tên người dùng đã tồn tại!", Toast.LENGTH_SHORT).show()
                 } else {
-
                     Toast.makeText(
                         context,
                         "Login failed, the user name doesn't exist",
                         Toast.LENGTH_SHORT
                     ).show()
                 }
+
+                binding?.loginProgressBar?.visibility = View.GONE
             }
 
             override fun onCancelled(databaseError: DatabaseError) {
@@ -125,6 +150,7 @@ class LoginFragment : Fragment() {
             }
         })
     }
+
     fun decryptAES(encryptedData: String, secretKey: SecretKey): String {
 
         val cipher = Cipher.getInstance("AES")

@@ -1,16 +1,130 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".screen.homescreen.MainActivity">
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/fragmentContainerView"
         android:name="androidx.navigation.fragment.NavHostFragment"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.94"
         app:defaultNavHost="true"
         app:navGraph="@navigation/mynav" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.07">
+
+        <TextView
+            android:id="@+id/btnHome"
+            android:layout_width="25dp"
+            android:layout_height="20dp"
+            android:layout_marginStart="25dp"
+            android:layout_marginTop="4dp"
+            android:background="@drawable/baseline_apps_24"
+            android:backgroundTint="#8BC34A"
+            app:layout_constraintEnd_toStartOf="@+id/btnsearchFragment"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/btnsearchFragment"
+            android:layout_width="25dp"
+            android:layout_height="20dp"
+            android:layout_marginStart="125dp"
+            android:layout_marginTop="4dp"
+            android:background="@drawable/baseline_search_24"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tvHome"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="25dp"
+            android:text="Home"
+            android:textColor="#8BC34A"
+            android:textSize="10sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/btnHome"
+            app:layout_constraintVertical_bias="0.0" />
+
+        <TextView
+            android:id="@+id/btnGenres"
+            android:layout_width="25dp"
+            android:layout_height="20dp"
+            android:layout_marginStart="240dp"
+            android:layout_marginTop="4dp"
+            android:background="@drawable/baseline_masks_24"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.0" />
+
+        <TextView
+            android:id="@+id/btnArtists"
+            android:layout_width="25dp"
+            android:layout_height="20dp"
+            android:layout_marginStart="300dp"
+            android:layout_marginTop="4dp"
+            android:background="@drawable/baseline_person_pin_24"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.0" />
+
+        <TextView
+            android:id="@+id/tvGenres"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="235dp"
+            android:text="Genres"
+            android:textColor="#020000"
+            android:textSize="10sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/btnGenres"
+            app:layout_constraintVertical_bias="0.0" />
+
+        <TextView
+            android:id="@+id/tvArtists"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="300dp"
+            android:text="Artists"
+            android:textColor="#020000"
+            android:textSize="10sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/btnArtists"
+            app:layout_constraintVertical_bias="0.0" />
+
+        <TextView
+            android:id="@+id/tvSearch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="123dp"
+            android:layout_marginEnd="67dp"
+            android:layout_marginBottom="4dp"
+            android:text="Search"
+            android:textColor="#020000"
+            android:textSize="10sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/btnGenres"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/btnsearchFragment"
+            app:layout_constraintVertical_bias="0.0" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</LinearLayout>
