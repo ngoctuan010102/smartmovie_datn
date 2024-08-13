@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mynav"
+    app:startDestination="@id/homeFragment">
+
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.tuanhn.smartmovie.screen.homescreen.HomeFragment"
+        android:label="fragment_home"
+        tools:layout="@layout/fragment_home">
+        <action
+            android:id="@+id/action_homeFragment_to_detailFilm"
+            app:destination="@id/detailFilm" />
+    </fragment>
+    <fragment
+        android:id="@+id/detailFilm"
+        android:name="com.tuanhn.smartmovie.screen.homescreen.bookticket.DetailFilm"
+        android:label="fragment_detail_film"
+        tools:layout="@layout/fragment_detail_film">
+        <argument
+            android:name="film"
+            app:argType="com.tuanhn.smartmovie.data.model.entities.Film" />
+        <action
+            android:id="@+id/action_detailFilm_to_videoFragment"
+            app:destination="@id/videoFragment" />
+        <action
+            android:id="@+id/action_detailFilm_to_choosenSeatsFragment"
+            app:destination="@id/choosenSeatsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/videoFragment"
+        android:name="com.tuanhn.smartmovie.screen.homescreen.bookticket.VideoFragment"
+        android:label="fragment_video"
+        tools:layout="@layout/fragment_video" >
+        <argument
+            android:name="videoURL"
+            app:argType="string" />
+    </fragment>
+    <fragment
+        android:id="@+id/choosenSeatsFragment"
+        android:name="com.tuanhn.smartmovie.screen.homescreen.bookticket.ChosenSeatsFragment"
+        android:label="fragment_choosen_seats"
+        tools:layout="@layout/fragment_choosen_seats" >
+        <argument
+            android:name="film"
+            app:argType="com.tuanhn.smartmovie.data.model.entities.Film" />
+        <argument
+            android:name="time"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_choosenSeatsFragment_to_bookSeatsInformation"
+            app:destination="@id/bookSeatsInformation" />
+        <argument
+            android:name="cinemaName"
+            app:argType="string" />
+    </fragment>
+    <fragment
+        android:id="@+id/bookSeatsInformation"
+        android:name="com.tuanhn.smartmovie.screen.homescreen.bookticket.BookSeatsInformationFragment"
+        android:label="fragment_book_seats_information"
+        tools:layout="@layout/fragment_book_seats_information" >
+        <argument
+            android:name="listSeat"
+            app:argType="string[]" />
+        <argument
+            android:name="total"
+            app:argType="float" />
+        <argument android:name="cinemaName"
+            app:argType="string" />
+        <argument
+            android:name="time"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_bookSeatsInformation_to_detailFilm"
+            app:destination="@id/detailFilm" />
+        <argument
+            android:name="listFilm"
+            app:argType="com.tuanhn.smartmovie.data.model.entities.Film" />
+    </fragment>
+</navigation>

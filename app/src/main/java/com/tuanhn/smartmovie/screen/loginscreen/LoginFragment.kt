@@ -1,0 +1,151 @@
+package com.tuanhn.smartmovie.screen.loginscreen
+
+import android.content.Context
+import android.content.Intent
+import android.os.Bundle
+import android.util.Base64
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.Toast
+import androidx.fragment.app.Fragment
+import androidx.navigation.Navigation
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
+import com.tuanhn.smartmovie.R
+import com.tuanhn.smartmovie.databinding.FragmentLoginBinding
+import com.tuanhn.smartmovie.screen.homescreen.MainActivity
+import javax.crypto.Cipher
+import javax.crypto.SecretKey
+import javax.crypto.spec.SecretKeySpec
+
+class LoginFragment : Fragment() {
+
+    private var binding: FragmentLoginBinding? = null
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        binding = FragmentLoginBinding.inflate(inflater, container, false)
+
+        return binding?.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        binding?.btnRegister?.setOnClickListener {
+
+            Navigation.findNavController(view)
+                .navigate(R.id.action_loginFragment_to_registerFragment)
+        }
+
+        binding?.let { bind ->
+
+            bind.btnLogin?.setOnClickListener {
+
+                val userName = bind.edtUserName.text.toString()
+
+                val password = bind.edtPassword.text.toString()
+
+                if (userName.isEmpty() || password.isEmpty()) {
+
+                    Toast.makeText(context, "Please fill in the blank field!", Toast.LENGTH_SHORT)
+                        .show()
+                } else {
+                    checkAccount(view, userName, password)
+                }
+            }
+
+        }
+    }
+
+    private fun checkAccount(view: View, userName: String, passWord1: String) {
+
+        val user = User(userName, passWord1)
+
+        val database = FirebaseDatabase.getInstance()
+
+        val myRef = database.getReference("users")
+
+        myRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+
+                var userExists = false
+
+                for (snapshot in dataSnapshot.children) {
+
+                    val existingUser = snapshot.getValue(User::class.java)
+
+                    val key = getKey(requireContext())
+
+                    var existingPassword = ""
+
+                    key?.let {
+                        existingUser?.let {
+                            existingPassword = decryptAES(existingUser.passWord, key)
+                        }
+                    }
+
+
+
+
+                    if (existingUser?.userName == user.userName && existingPassword == user.passWord) {
+                        userExists = true
+                        break
+                    }
+                }
+
+                if (userExists) {
+
+                    val activity = requireActivity()
+
+                    val intent = Intent(activity.applicationContext, MainActivity::class.java)
+
+                    startActivity(intent)
+
+                    activity.finish()
+
+                    Toast.makeText(context, "Tên người dùng đã tồn tại!", Toast.LENGTH_SHORT).show()
+                } else {
+
+                    Toast.makeText(
+                        context,
+                        "Login failed, the user name doesn't exist",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+                Toast.makeText(context, "Lỗi kết nối database!", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+    fun decryptAES(encryptedData: String, secretKey: SecretKey): String {
+
+        val cipher = Cipher.getInstance("AES")
+
+        cipher.init(Cipher.DECRYPT_MODE, secretKey)
+
+        val decodedBytes = Base64.decode(encryptedData, Base64.DEFAULT)
+
+        val decryptedBytes = cipher.doFinal(decodedBytes)
+
+        return String(decryptedBytes)
+    }
+
+    private fun getKey(context: Context): SecretKey? {
+
+        val prefs = context.getSharedPreferences("secure_prefs", Context.MODE_PRIVATE)
+
+        val encodedKey = prefs.getString("aes_key", null) ?: return null
+
+        val decodedKey = Base64.decode(encodedKey, Base64.DEFAULT)
+
+        return SecretKeySpec(decodedKey, 0, decodedKey.size, "AES")
+    }
+}

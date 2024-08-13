@@ -1,0 +1,49 @@
+{
+  "project_info": {
+    "project_number": "149375144449",
+    "firebase_url": "https://smartmovie-a1437-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "smartmovie-a1437",
+    "storage_bucket": "smartmovie-a1437.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:149375144449:android:b9fed798e7bddc09352600",
+        "android_client_info": {
+          "package_name": "com.tuanhn.smartmovie"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBMJuv30WUG0T62SuFN-v4C00L4bbGz_1g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:149375144449:android:56b10120d5c4e0f9352600",
+        "android_client_info": {
+          "package_name": "com.tuanhn4.smartmovie"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBMJuv30WUG0T62SuFN-v4C00L4bbGz_1g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
