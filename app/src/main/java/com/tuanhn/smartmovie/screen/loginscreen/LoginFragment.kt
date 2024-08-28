@@ -1,11 +1,13 @@
 package com.tuanhn.smartmovie.screen.loginscreen
 
+import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Base64
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,6 +18,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import com.google.firebase.firestore.FirebaseFirestore
 import com.tuanhn.smartmovie.R
 import com.tuanhn.smartmovie.databinding.FragmentLoginBinding
 import com.tuanhn.smartmovie.screen.homescreen.MainActivity
@@ -84,41 +87,39 @@ class LoginFragment : Fragment() {
 
         val user = User(userName, passWord1)
 
-        val database = FirebaseDatabase.getInstance()
+        val db = FirebaseFirestore.getInstance()
 
-        val myRef = database.getReference("users")
-
-        myRef.addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
+        db.collection("users")
+            .get()
+            .addOnSuccessListener { result ->
 
                 var userExists = false
 
-                for (snapshot in dataSnapshot.children) {
+                for (document in result) {
 
-                    val existingUser = snapshot.getValue(User::class.java)
+                    val passWord = document.getString("passWord")
+
+                    val userName = document.getString("userName")
 
                     val key = getKey(requireContext())
 
                     var existingPassword = ""
 
                     key?.let {
-                        existingUser?.let {
-                            existingPassword = decryptAES(existingUser.passWord, key)
+                        passWord?.let {
+                            existingPassword = decryptAES(passWord, key)
                         }
                     }
 
-
-
-
-                    if (existingUser?.userName == user.userName && existingPassword == user.passWord) {
+                    if (userName == user.userName && existingPassword == user.passWord) {
                         userExists = true
                         break
                     }
                 }
-
                 if (userExists) {
 
-                    val sharedPreferences = context?.getSharedPreferences("current_user", Context.MODE_PRIVATE)
+                    val sharedPreferences =
+                        context?.getSharedPreferences("current_user", Context.MODE_PRIVATE)
 
                     val editor = sharedPreferences?.edit()
 
@@ -144,14 +145,12 @@ class LoginFragment : Fragment() {
 
                 binding?.loginProgressBar?.visibility = View.GONE
             }
-
-            override fun onCancelled(databaseError: DatabaseError) {
-                Toast.makeText(context, "Lỗi kết nối database!", Toast.LENGTH_SHORT).show()
+            .addOnFailureListener { exception ->
+                Log.w(TAG, "Error getting documents: ", exception)
             }
-        })
     }
 
-    fun decryptAES(encryptedData: String, secretKey: SecretKey): String {
+    private fun decryptAES(encryptedData: String, secretKey: SecretKey): String {
 
         val cipher = Cipher.getInstance("AES")
 

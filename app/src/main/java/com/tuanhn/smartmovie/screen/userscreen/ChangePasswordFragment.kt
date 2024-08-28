@@ -1,8 +1,11 @@
 package com.tuanhn.smartmovie.screen.userscreen
 
+import android.content.ContentValues
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.util.Base64
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,8 +17,12 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.QueryDocumentSnapshot
+import com.google.firebase.firestore.QuerySnapshot
 import com.tuanhn.smartmovie.R
 import com.tuanhn.smartmovie.databinding.FragmentChangePasswordBinding
+import com.tuanhn.smartmovie.screen.homescreen.MainActivity
 import com.tuanhn.smartmovie.screen.loginscreen.User
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
@@ -54,51 +61,59 @@ class ChangePasswordFragment : Fragment() {
 
         val user = User(userName, passWord)
 
-        val database = FirebaseDatabase.getInstance()
+        val db = FirebaseFirestore.getInstance()
 
-        val myRef = database.getReference("users")
-
-        myRef.addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
+        db.collection("users")
+            .get()
+            .addOnSuccessListener { result ->
 
                 var userExists = false
 
-                var email = ""
+                var email: String? = ""
 
-                for (snapshot in dataSnapshot.children) {
+                var finalDocument: QueryDocumentSnapshot? = null
 
-                    val existingUser = snapshot.getValue(User::class.java)
+                for (document in result) {
+
+                    val passWord = document.getString("passWord")
+
+                    val userName = document.getString("userName")
+
+                    email = document.getString("email")
 
                     val key = getKey(requireContext())
 
                     var existingPassword = ""
 
                     key?.let {
-                        existingUser?.let {
-                            existingPassword = decryptAES(existingUser.passWord, key)
+                        passWord?.let {
+                            existingPassword = decryptAES(passWord, key)
                         }
                     }
 
-                    if (existingUser?.userName == user.userName && existingPassword == user.passWord) {
+                    if (userName == user.userName && existingPassword == user.passWord) {
 
                         userExists = true
 
-                        email = existingUser.email
+                        finalDocument = document
 
                         break
                     }
                 }
-
                 if (userExists) {
 
+                    Log.d("sjjd", "exist ")
                     if (binding?.edtNewPass1?.text.toString() == binding?.edtNewPass2?.text.toString()) {
 
-                        updateUser(User(userName, binding?.edtNewPass1?.text.toString(), email), myRef)
+                        email?.let {email->
+                            updateUser(User(userName, binding?.edtNewPass1?.text.toString(), email), finalDocument)
+                        }
 
                         Navigation.findNavController(view).navigate(R.id.accountInformationFragment)
                     }
 
                 } else {
+                    Log.d("sjjd", "doesn't exist ")
                     Toast.makeText(
                         context,
                         "Login failed, the user name doesn't exist $userName ${user.passWord}",
@@ -106,11 +121,9 @@ class ChangePasswordFragment : Fragment() {
                     ).show()
                 }
             }
-
-            override fun onCancelled(databaseError: DatabaseError) {
-                Toast.makeText(context, "Lỗi kết nối database!", Toast.LENGTH_SHORT).show()
+            .addOnFailureListener { exception ->
+                Log.w(ContentValues.TAG, "Error getting documents: ", exception)
             }
-        })
     }
 
    private fun securityPassword(): SecretKey {
@@ -161,15 +174,27 @@ class ChangePasswordFragment : Fragment() {
         editor.apply()
     }
 
-    fun updateUser(user: User, myRef: DatabaseReference) {
+    private fun updateUser(user: User, document: QueryDocumentSnapshot?) {
         val key = securityPassword()
 
+        // Mã hóa mật khẩu của user bằng AES
         val encryptString = encryptAES(user.passWord, key)
 
+        // Cập nhật lại password của user với chuỗi đã mã hóa
         user.passWord = encryptString
 
+        // Kiểm tra tính hợp lệ của email
         if (isValidEmail(user.email)) {
-            myRef.child(user.userName).setValue(user)
+            // Cập nhật user trong Firestore
+            document?.reference?.set(user)
+                ?.addOnSuccessListener {
+                    // Xử lý khi cập nhật thành công
+                    Log.d("Firestore", "User updated successfully")
+                }
+                ?.addOnFailureListener { e ->
+                    // Xử lý khi có lỗi
+                    Log.w("Firestore", "Error updating user", e)
+                }
         }
     }
 
@@ -180,7 +205,7 @@ class ChangePasswordFragment : Fragment() {
         return email.matches(emailRegex.toRegex())
     }
 
-    fun decryptAES(encryptedData: String, secretKey: SecretKey): String {
+    private fun decryptAES(encryptedData: String, secretKey: SecretKey): String {
 
         val cipher = Cipher.getInstance("AES")
 

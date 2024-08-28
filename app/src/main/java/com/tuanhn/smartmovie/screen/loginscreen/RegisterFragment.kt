@@ -1,8 +1,10 @@
 package com.tuanhn.smartmovie.screen.loginscreen
 
+import android.content.ContentValues.TAG
 import android.content.Context
 import android.os.Bundle
 import android.util.Base64
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,12 +15,14 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import com.google.firebase.firestore.FirebaseFirestore
 import com.tuanhn.smartmovie.R
 import com.tuanhn.smartmovie.databinding.FragmentRegisterBinding
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 import javax.crypto.spec.SecretKeySpec
+
 
 class RegisterFragment : Fragment() {
 
@@ -73,7 +77,7 @@ class RegisterFragment : Fragment() {
         return keyGen.generateKey()
     }
 
-    fun encryptAES(data: String, secretKey: SecretKey): String {
+    private fun encryptAES(data: String, secretKey: SecretKey): String {
 
         val cipher = Cipher.getInstance("AES")
 
@@ -113,7 +117,7 @@ class RegisterFragment : Fragment() {
         return SecretKeySpec(decodedKey, 0, decodedKey.size, "AES")
     }
 
-    fun securityPassword(): SecretKey {
+    private fun securityPassword(): SecretKey {
 
         var secretKey = getKey(requireContext())
 
@@ -137,30 +141,25 @@ class RegisterFragment : Fragment() {
 
         val user = User(userName, passWord1, email)
 
-        val database = FirebaseDatabase.getInstance()
+        val db = FirebaseFirestore.getInstance()
 
-        val myRef = database.getReference("users")
-
-        myRef.addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
-
+        db.collection("users")
+            .get()
+            .addOnSuccessListener { result ->
                 var userExists = false
 
-                for (snapshot in dataSnapshot.children) {
+                for (document in result) {
 
-                    val existingUser = snapshot.getValue(User::class.java)
+                    val userName = document.getString("userName")
 
-                    if (existingUser?.userName == user.userName) {
+                    if (userName == user.userName) {
                         userExists = true
                         break
                     }
                 }
-
                 if (userExists) {
-
                     Toast.makeText(context, "Tên người dùng đã tồn tại!", Toast.LENGTH_SHORT).show()
                 } else {
-
 
                     val key = securityPassword()
 
@@ -170,7 +169,7 @@ class RegisterFragment : Fragment() {
 
                     if (isValidEmail(user.email)) {
 
-                        myRef.child(user.userName).setValue(user)
+                        db.collection("users").add(user)
 
                         Toast.makeText(context, "Đăng ký thành công!", Toast.LENGTH_SHORT).show()
 
@@ -179,10 +178,6 @@ class RegisterFragment : Fragment() {
                     }
                 }
             }
-
-            override fun onCancelled(databaseError: DatabaseError) {
-                Toast.makeText(context, "Lỗi kết nối database!", Toast.LENGTH_SHORT).show()
-            }
-        })
+            .addOnFailureListener { e -> Log.w(TAG, "Error adding document", e) }
     }
 }

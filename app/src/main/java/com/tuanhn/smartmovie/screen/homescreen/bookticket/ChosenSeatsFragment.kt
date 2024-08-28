@@ -13,6 +13,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import com.google.firebase.firestore.FirebaseFirestore
 import com.tuanhn.smartmovie.adapter.SeatsAdapter
 import com.tuanhn.smartmovie.databinding.FragmentChoosenSeatsBinding
 import dagger.hilt.android.AndroidEntryPoint
@@ -111,60 +112,98 @@ class ChosenSeatsFragment : Fragment() {
         else
             listSeats.remove(seat)
     }
+    /*
+        private fun clearDataRealTime() {
 
-    private fun clearDataRealTime() {
+            val database = FirebaseDatabase.getInstance()
 
-        val database = FirebaseDatabase.getInstance()
+            val currentDate = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(Date())
 
-        val myRef = database.getReference("bookedSeats").child(args.cinemaName)
+            val myRef = database.getReference("bookedSeats").child(currentDate).child(args.cinemaName)
 
-        val currentTime = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
+            val currentTime = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
 
-        myRef.addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
+            myRef.addValueEventListener(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
 
-                for (childSnapshot in snapshot.children) {
+                    for (childSnapshot in snapshot.children) {
 
-                    val timeSlot = childSnapshot.key ?: continue
+                        val timeSlot = childSnapshot.key ?: continue
 
-                    if (timeSlot < currentTime) {
-                        childSnapshot.ref.removeValue()
+                        if (timeSlot < currentTime) {
+                            childSnapshot.ref.removeValue()
+                        }
                     }
                 }
-            }
 
-            override fun onCancelled(databaseError: DatabaseError) {
+                override fun onCancelled(databaseError: DatabaseError) {
 
-            }
-        })
-    }
+                }
+            })
+        }*/
 
     private fun getDataRealTime(listSeats: List<String>) {
 
-        val database = FirebaseDatabase.getInstance()
+        val db = FirebaseFirestore.getInstance()
 
-        val myRef = database.getReference("bookedSeats").child(args.cinemaName)
-            .child(args.time)
+        val currentDate = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault()).format(Date())
 
-        clearDataRealTime()
+        /*val myRef = database.getReference("bookedSeats").child(currentDate).child(args.cinemaName)
+            .child(args.time)*/
+
+        // clearDataRealTime()
+
         val listBookedSeats: MutableList<String> = mutableListOf()
-        myRef.addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
 
-                for (childSnapshot in snapshot.children) {
+        // Tham chiếu đến document chứa thông tin các ghế đã đặt
+        val documentRef = db.collection("bookedSeats")
+            .document(currentDate)
+            .collection(args.cinemaName)
+            .document(args.time)
 
-                    childSnapshot.key?.let { key ->
-                        listBookedSeats.add(key)
+        // Lấy dữ liệu từ document
+        documentRef.get()
+            .addOnSuccessListener { documentSnapshot ->
+                if (documentSnapshot.exists()) {
+                    // Dữ liệu tồn tại trong document
+                    val bookedSeats =
+                        documentSnapshot.data // Hoặc chuyển đổi thành kiểu dữ liệu cụ thể nếu cần
+                    if (bookedSeats != null) {
+                        // Xử lý bookedSeats (Map<String, String> hoặc kiểu dữ liệu khác)
+                        for ((seat, email) in bookedSeats) {
+                            Log.d("Firestore", "Seat: $seat, Email: $email")
+                            listBookedSeats.add(seat)
+                        }
+                    } else {
+                        Log.d("Firestore", "Document is empty")
                     }
+                } else {
+                    Log.d("Firestore", "Document does not exist")
                 }
                 adapter?.updateSeats(listSeats, listBookedSeats)
             }
-
-            override fun onCancelled(databaseError: DatabaseError) {
-                // Xử lý lỗi
-                println("Error reading data: ${databaseError.message}")
+            .addOnFailureListener { e ->
+                // Xử lý lỗi khi lấy dữ liệu
+                Log.w("Firestore", "Error getting document.", e)
             }
-        })
+
+        /*   myRef.addValueEventListener(object : ValueEventListener {
+               override fun onDataChange(snapshot: DataSnapshot) {
+
+                   for (childSnapshot in snapshot.children) {
+
+                       childSnapshot.key?.let { key ->
+                           listBookedSeats.add(key)
+                       }
+                   }
+                   adapter?.updateSeats(listSeats, listBookedSeats)
+               }
+
+               override fun onCancelled(databaseError: DatabaseError) {
+                   // Xử lý lỗi
+                   println("Error reading data: ${databaseError.message}")
+               }
+           })*/
         //adapter?.updateSeats(listSeats, listBookedSeats)
     }
 

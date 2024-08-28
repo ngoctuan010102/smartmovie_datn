@@ -1,5 +1,6 @@
 package com.tuanhn.smartmovie.screen.homescreen.bookticket
 
+import android.content.ContentValues
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -14,10 +15,15 @@ import com.android.volley.Response
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.firestore.FirebaseFirestore
+import com.tuanhn.smartmovie.R
 
 import com.tuanhn.smartmovie.databinding.FragmentBookSeatsInformationBinding
 import org.json.JSONArray
 import org.json.JSONObject
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 
 class BookSeatsInformationFragment : Fragment() {
@@ -37,12 +43,35 @@ class BookSeatsInformationFragment : Fragment() {
     }
 
     private fun setDataRealTime(edtEmail: String) {
-        val database = FirebaseDatabase.getInstance()
-        val myRef = database.getReference("bookedSeats").child(args.cinemaName)
-            .child(args.time)
+
+        val db = FirebaseFirestore.getInstance()
+
+        val dateFormat = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
+
+        val currentDate = dateFormat.format(Date())
+
+        val bookedSeats = hashMapOf<String, String>()
+
         for (item in args.listSeat) {
-            myRef.child(item).setValue(edtEmail)
+            bookedSeats[item] = edtEmail
         }
+
+    // Tham chiếu đến document cần cập nhật
+        val documentRef = db.collection("bookedSeats")
+            .document(currentDate)
+            .collection(args.cinemaName)
+            .document(args.time)
+
+        // Ghi tất cả ghế vào document
+        documentRef.set(bookedSeats)
+            .addOnSuccessListener {
+                // Xử lý khi ghi dữ liệu thành công
+                Log.d("Firestore", "Seats added successfully")
+            }
+            .addOnFailureListener { e ->
+                // Xử lý khi có lỗi
+                Log.w("Firestore", "Error adding seats", e)
+            }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
