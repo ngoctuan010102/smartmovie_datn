@@ -2,7 +2,6 @@ package com.tuanhn.smartmovie.screen.userscreen
 
 import android.content.ContentValues
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.util.Base64
 import android.util.Log
@@ -12,17 +11,10 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QueryDocumentSnapshot
-import com.google.firebase.firestore.QuerySnapshot
 import com.tuanhn.smartmovie.R
 import com.tuanhn.smartmovie.databinding.FragmentChangePasswordBinding
-import com.tuanhn.smartmovie.screen.homescreen.MainActivity
 import com.tuanhn.smartmovie.screen.loginscreen.User
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator

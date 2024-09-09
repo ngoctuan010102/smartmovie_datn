@@ -11,10 +11,6 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
 import com.google.firebase.firestore.FirebaseFirestore
 import com.tuanhn.smartmovie.R
 import com.tuanhn.smartmovie.databinding.FragmentRegisterBinding
@@ -22,7 +18,6 @@ import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 import javax.crypto.spec.SecretKeySpec
-
 
 class RegisterFragment : Fragment() {
 
@@ -119,15 +114,15 @@ class RegisterFragment : Fragment() {
 
     private fun securityPassword(): SecretKey {
 
-        var secretKey = getKey(requireContext())
+      /*  var secretKey = getKey(requireContext())
 
         if (secretKey == null) {
 
             secretKey = generateAESKey()
 
             saveKey(secretKey)
-        }
-        return secretKey
+        }*/
+        return  generateAESKey()
     }
 
     private fun isValidEmail(email: String): Boolean {
@@ -135,6 +130,10 @@ class RegisterFragment : Fragment() {
         val emailRegex = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
 
         return email.matches(emailRegex.toRegex())
+    }
+
+   private fun secretKeyToString(secretKey: SecretKey): String {
+        return Base64.encodeToString(secretKey.encoded,  Base64.DEFAULT)
     }
 
     private fun insertNewUser(view: View, userName: String, passWord1: String, email: String) {
@@ -166,6 +165,11 @@ class RegisterFragment : Fragment() {
                     val encryptString = encryptAES(user.passWord, key)
 
                     user.passWord = encryptString
+
+                    Log.d("dk", key.toString())
+
+
+                    user.key = secretKeyToString(key)
 
                     if (isValidEmail(user.email)) {
 

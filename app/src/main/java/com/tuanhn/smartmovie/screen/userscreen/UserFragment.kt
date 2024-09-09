@@ -47,9 +47,19 @@ class UserFragment : Fragment() {
         binding?.layoutAccountInfor?.setOnClickListener {
             Navigation.findNavController(view).navigate(R.id.action_userFragment_to_accountInformationFragment)
         }
+
+        binding?.layoutFavorite?.setOnClickListener {
+            Navigation.findNavController(view).navigate(R.id.action_userFragment_to_favoriteScreen)
+        }
+
+        binding?.layoutPurchase?.setOnClickListener {
+            Navigation.findNavController(view).navigate(R.id.action_userFragment_to_purchaseHistoryFragment)
+        }
+
+        setButtonMoveEvent(requireActivity())
     }
 
-    fun setButtonMoveEvent(activity: Activity) {
+    private fun setButtonMoveEvent(activity: Activity) {
 
         val btnSearchFragment = activity.findViewById<TextView>(R.id.btnsearchFragment)
 

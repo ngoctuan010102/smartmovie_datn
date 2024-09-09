@@ -1,4 +1,4 @@
-package com.tuanhn.smartmovie.ui.viewmodels
+package com.tuanhn.smartmovie.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

@@ -1,6 +1,7 @@
 package com.tuanhn.smartmovie.screen.homescreen.bookticket
 
-import android.content.ContentValues
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -14,11 +15,11 @@ import com.android.volley.RequestQueue
 import com.android.volley.Response
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
-import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.FirebaseFirestore
-import com.tuanhn.smartmovie.R
+import com.tuanhn.smartmovie.data.model.entities.Bill
 
 import com.tuanhn.smartmovie.databinding.FragmentBookSeatsInformationBinding
+import com.tuanhn.smartmovie.screen.homescreen.MainActivity
 import org.json.JSONArray
 import org.json.JSONObject
 import java.text.SimpleDateFormat
@@ -42,13 +43,49 @@ class BookSeatsInformationFragment : Fragment() {
         return binding?.root
     }
 
-    private fun setDataRealTime(edtEmail: String) {
+    private fun setBillRealTime(
+        seats: String,
+        totalMoney: Float,
+        cinemaName: String,
+        currentDate: String
+    ) {
+        val db = FirebaseFirestore.getInstance()
+        val documentRef = db.collection("bills")
+
+        documentRef.get().addOnSuccessListener { result ->
+
+            val billId = result.size() + 1
+
+            setUp(db, billId, seats, totalMoney, cinemaName, currentDate)
+        }
+    }
+
+    private fun setUp(
+        db: FirebaseFirestore,
+        billId: Int,
+        seats: String,
+        totalMoney: Float,
+        cinemaName: String,
+        currentDate: String
+    ) {
+        val sharedPreferences = context?.getSharedPreferences("current_user", Context.MODE_PRIVATE)
+
+        val currentUser = sharedPreferences?.getString("current_user", "default_value")
+
+        currentUser?.let {
+            val item = Bill(
+                billId,
+                cinemaName, seats, totalMoney,
+                currentUser,
+                currentDate
+            )
+            db.collection("bills").add(item)
+        }
+    }
+
+    private fun setDataRealTime(edtEmail: String, currentDate: String) {
 
         val db = FirebaseFirestore.getInstance()
-
-        val dateFormat = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
-
-        val currentDate = dateFormat.format(Date())
 
         val bookedSeats = hashMapOf<String, String>()
 
@@ -56,7 +93,7 @@ class BookSeatsInformationFragment : Fragment() {
             bookedSeats[item] = edtEmail
         }
 
-    // Tham chiếu đến document cần cập nhật
+        // Tham chiếu đến document cần cập nhật
         val documentRef = db.collection("bookedSeats")
             .document(currentDate)
             .collection(args.cinemaName)
@@ -103,17 +140,25 @@ class BookSeatsInformationFragment : Fragment() {
                 ).show()
             } else {
 
-                setDataRealTime(edtEmail)
+                val dateFormat = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
+
+                val currentDate = dateFormat.format(Date())
+
+                setBillRealTime(seats.toString(), args.total, args.cinemaName, currentDate)
+
+                setDataRealTime(edtEmail, currentDate)
 
                 val requestQueue = Volley.newRequestQueue(context)
 
                 sendEmailDirectly(requestQueue, seats)
 
-                val action =
+                val intent = Intent(requireContext(), MainActivity::class.java)
+                startActivity(intent)
+                /*val action =
                     BookSeatsInformationFragmentDirections.actionBookSeatsInformationToDetailFilm(
                         args.listFilm
                     )
-                Navigation.findNavController(view).navigate(action)
+                Navigation.findNavController(view).navigate(action)*/
             }
         }
     }

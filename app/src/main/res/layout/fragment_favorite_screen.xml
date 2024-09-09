@@ -4,22 +4,19 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".PurchaseHistoryFragment" >
+    tools:context=".screen.userscreen.FavoriteScreen" >
 
     <TextView
-        android:id="@+id/textView18"
+        android:id="@+id/textView10"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="40dp"
         android:gravity="center"
-        android:text="Your Bills"
-        android:textSize="20sp"
-        android:textStyle="bold" />
+        android:text="My Favorite"
+        android:textSize="20sp" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rcvBill"
+        android:id="@+id/rcvFavorite"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_margin="5dp" >
-
-    </androidx.recyclerview.widget.RecyclerView>
+        android:layout_margin="5dp" />
 </LinearLayout>

@@ -10,14 +10,15 @@ import kotlinx.parcelize.Parcelize
 data class Film(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
-    val film_id: Int,
-    val imdb_id: Int,
-    val imdb_title_id: String,
-    val film_name: String,
-    val other_titles: String?,
-    val releaseDate: String,
-    val film_trailer: String?,
-    val synopsis_long: String,
-    val poster: String?,
-    val still: String?
+    val film_id: Int = 0,
+    val imdb_id: Int = 0,
+    val imdb_title_id: String = "",
+    val film_name: String = "",
+    val other_titles: String? = "",
+    val releaseDate: String = "",
+    val film_trailer: String? = "",
+    val synopsis_long: String = "",
+    val poster: String? = "",
+    val still: String? = "",
+    val isNowPlaying: Boolean = false,
 ): Parcelable

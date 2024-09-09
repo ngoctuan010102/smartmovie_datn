@@ -78,6 +78,9 @@ class ChosenSeatsFragment : Fragment() {
                 listSeats.add("${list[j]}${i}")
             }
         }
+
+      //  adapter?.updateSeats(listSeats, listOf())
+
         getDataRealTime(listSeats)
 
         Log.d("sdsd", "update")

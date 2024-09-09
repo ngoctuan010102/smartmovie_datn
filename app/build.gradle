@@ -53,6 +53,9 @@ android {
 
 dependencies {
 
+    //worker
+    implementation "androidx.work:work-runtime-ktx:2.8.1"
+
     //send email auto
     implementation 'com.android.volley:volley:1.2.1'
     implementation 'org.json:json:20210307'

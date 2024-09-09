@@ -57,7 +57,7 @@
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toEndOf="@+id/item_vertical"
             app:layout_constraintTop_toBottomOf="@+id/tvNameMovieVertical"
-            app:layout_constraintVertical_bias="0.222" />
+            app:layout_constraintVertical_bias="0.703" />
 
         <ImageView
             android:id="@+id/imgFavVer"
@@ -73,6 +73,18 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.09"
             app:srcCompat="@drawable/baseline_favorite_border_24" />
+
+        <ImageView
+            android:id="@+id/imgNotify"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.98"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.305"
+            app:srcCompat="@drawable/baseline_notifications_24" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -47,6 +47,7 @@ class HomeFragment : Fragment() {
 
         setUpAdapter()
 
+
     }
 
 

@@ -14,10 +14,6 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
 import com.google.firebase.firestore.FirebaseFirestore
 import com.tuanhn.smartmovie.R
 import com.tuanhn.smartmovie.databinding.FragmentLoginBinding
@@ -83,6 +79,13 @@ class LoginFragment : Fragment() {
         }
     }
 
+    private fun stringToSecretKey(keyString: String): SecretKey {
+        // Giải mã Base64 thành byte array
+        val keyBytes = Base64.decode(keyString, Base64.DEFAULT)
+        // Tạo SecretKey từ byte array
+        return SecretKeySpec(keyBytes, 0, keyBytes.size, "AES")
+    }
+
     private fun checkAccount(view: View, userName: String, passWord1: String) {
 
         val user = User(userName, passWord1)
@@ -96,25 +99,30 @@ class LoginFragment : Fragment() {
                 var userExists = false
 
                 for (document in result) {
-
                     val passWord = document.getString("passWord")
 
                     val userName = document.getString("userName")
 
-                    val key = getKey(requireContext())
+                    val keyString = document.getString("key")
+                    var key: SecretKey? = null
+                    keyString?.let {
+                        key = stringToSecretKey(keyString)
+                    }
 
                     var existingPassword = ""
 
-                    key?.let {
+                    key?.let { key ->
                         passWord?.let {
                             existingPassword = decryptAES(passWord, key)
                         }
                     }
 
+
                     if (userName == user.userName && existingPassword == user.passWord) {
                         userExists = true
                         break
                     }
+
                 }
                 if (userExists) {
 

@@ -11,10 +11,8 @@ import com.tuanhn.smartmovie.data.model.entities.AgeRating
 import com.tuanhn.smartmovie.data.model.entities.Film
 import com.tuanhn.smartmovie.data.network.ApiService
 import com.tuanhn.smartmovie.data.network.respond.Cinema
-import com.tuanhn.smartmovie.data.network.respond.FilmRespond
 import com.tuanhn.smartmovie.data.network.respond.Images
 import com.tuanhn.smartmovie.data.network.respond.SearchFilmRespond
-import com.tuanhn.smartmovie.data.network.respond.SearchRespond
 import com.tuanhn.smartmovie.data.utils.Constants
 import com.tuanhn4.smartmovie.data.utils.UiState
 import kotlinx.coroutines.CoroutineDispatcher
@@ -125,10 +123,81 @@ class APIRepository @Inject constructor(
         }
     }
 
-    suspend fun getAPIFilmNowShowing(n: Int) {
+    suspend fun getAPIFilmComingSoon(n: Int) {
         scope.launch {
             try {
                 val response = apiServiceDI.getFilmsComingSoon(
+                    client,
+                    apiKey,
+                    authentication,
+                    territory,
+                    apiVersion,
+                    geolocation,
+                    LocalDateTime.now().toString() + "Z",
+                    n
+                )
+                Log.d("sscccds", response.body()?.films.toString())
+                response.body()?.films?.let { listFilm ->
+                    for (film in listFilm) {
+                        val releaseDate = film.release_dates
+
+                        val imagesJson = Gson().toJson(film.images)
+
+                        val images = Gson().fromJson(imagesJson, Images::class.java)
+
+                        val poster: String? =
+                            images.poster?.values?.firstOrNull()?.medium?.film_image
+
+                        val still: String? =
+                            images.still?.values?.firstOrNull()?.medium?.film_image
+
+
+                        val newFilm = Film(
+                            0,
+                            film.film_id,
+                            film.imdb_id,
+                            film.imdb_title_id,
+                            film.film_name,
+                            film.other_titles.toString(),
+                            releaseDate[0].release_date,
+                            film.film_trailer,
+                            film.synopsis_long,
+                            poster,
+                            still,
+                            false
+                        )
+
+                        val ageRating = film.age_rating
+
+                        val newAgeRating = AgeRating(
+                            0,
+                            film.film_id,
+                            ageRating[0].rating,
+                            ageRating[0].age_rating_image,
+                            ageRating[0].age_advisory
+                        )
+
+                        val list = filmDao.getFilms()
+
+                        val checkList =
+                            list.none { film -> film.film_id == newFilm.film_id }
+
+                        if (checkList) {
+                            filmDao.insertFilm(newFilm)
+                            ageRatingDao.insertAgeRating(newAgeRating)
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                Log.d("SH", "EFailed")
+            }
+        }
+    }
+
+    suspend fun getAPIFilmNowShowing(n: Int) {
+        scope.launch {
+            try {
+                val response = apiServiceDI.getFilmsNowPlaying(
                     client,
                     apiKey,
                     authentication,
@@ -165,7 +234,8 @@ class APIRepository @Inject constructor(
                                 film.film_trailer,
                                 film.synopsis_long,
                                 poster,
-                                still
+                                still,
+                                true
                             )
 
                             val ageRating = film.age_rating

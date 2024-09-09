@@ -12,6 +12,11 @@ class ViewModelAPI @Inject constructor(
     private val apiRepository: APIRepository
 ) : ViewModel() {
 
+    fun getAPIFilmComingSoon(n: Int) {
+        viewModelScope.launch {
+            apiRepository.getAPIFilmComingSoon(n)
+        }
+    }
 
     fun getAPIFilmNowShowing(n: Int) {
         viewModelScope.launch {
