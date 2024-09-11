@@ -16,12 +16,12 @@
             android:id="@+id/textView12"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Cinema Name:"
+            android:text="ID:"
             android:textSize="16sp"
             android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/cinemaName"
+            android:id="@+id/tvIdCoupon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
@@ -37,14 +37,14 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Date:"
+            android:text="Start Date:"
             android:textSize="16sp"
             android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/bookedDate"
+            android:id="@+id/tvStartDate"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:text="TextView"
             android:textSize="16sp" />
@@ -59,12 +59,12 @@
             android:id="@+id/textView15"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Seats:"
+            android:text="End Date:"
             android:textSize="16sp"
             android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/tvSeats"
+            android:id="@+id/tvEndDate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
@@ -81,17 +81,29 @@
             android:id="@+id/textView17"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Total Money:"
+            android:text="Discount Value:"
             android:textSize="16sp"
             android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/totalMoney"
+            android:id="@+id/tvdiscountValue"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:text="TextView"
             android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/tvSaveCoupon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="70dp"
+            android:background="#EA0C0C"
+            android:gravity="right"
+            android:padding="5dp"
+            android:text="Add Coupon"
+            android:textColor="#F4EFEF"
+            android:textStyle="bold" />
     </LinearLayout>
 
 </LinearLayout>

@@ -102,6 +102,12 @@
         <action
             android:id="@+id/action_userFragment_to_favoriteScreen"
             app:destination="@id/favoriteScreen" />
+        <action
+            android:id="@+id/action_userFragment_to_couponsFragment"
+            app:destination="@id/couponsFragment" />
+        <action
+            android:id="@+id/action_userFragment_to_userCouponsFragment"
+            app:destination="@id/userCouponsFragment" />
     </fragment>
     <fragment
         android:id="@+id/accountInformationFragment"
@@ -127,4 +133,14 @@
         android:name="com.tuanhn.smartmovie.screen.userscreen.FavoriteScreen"
         android:label="fragment_favorite_screen"
         tools:layout="@layout/fragment_favorite_screen" />
+    <fragment
+        android:id="@+id/couponsFragment"
+        android:name="com.tuanhn.smartmovie.CouponsFragment"
+        android:label="fragment_coupons"
+        tools:layout="@layout/fragment_coupons" />
+    <fragment
+        android:id="@+id/userCouponsFragment"
+        android:name="com.tuanhn.smartmovie.UserCouponsFragment"
+        android:label="fragment_user_coupons"
+        tools:layout="@layout/fragment_user_coupons" />
 </navigation>

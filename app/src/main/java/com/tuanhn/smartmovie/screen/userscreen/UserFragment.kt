@@ -7,15 +7,14 @@ import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.view.ViewCompat
+import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
 import com.tuanhn.smartmovie.R
-import com.tuanhn.smartmovie.databinding.FragmentLoginBinding
 import com.tuanhn.smartmovie.databinding.FragmentUserBinding
 
 class UserFragment : Fragment() {
@@ -54,6 +53,14 @@ class UserFragment : Fragment() {
 
         binding?.layoutPurchase?.setOnClickListener {
             Navigation.findNavController(view).navigate(R.id.action_userFragment_to_purchaseHistoryFragment)
+        }
+
+        binding?.layoutCoupons?.setOnClickListener {
+            Navigation.findNavController(view).navigate(R.id.action_userFragment_to_couponsFragment)
+        }
+
+        binding?.layoutUserCoupons?.setOnClickListener {
+            Navigation.findNavController(view).navigate(R.id.action_userFragment_to_userCouponsFragment)
         }
 
         setButtonMoveEvent(requireActivity())

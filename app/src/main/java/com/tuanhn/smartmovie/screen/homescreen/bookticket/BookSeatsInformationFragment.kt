@@ -1,5 +1,6 @@
 package com.tuanhn.smartmovie.screen.homescreen.bookticket
 
+import android.R
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -7,22 +8,27 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.navigation.Navigation
 import androidx.navigation.fragment.navArgs
 import com.android.volley.RequestQueue
 import com.android.volley.Response
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.toObject
 import com.tuanhn.smartmovie.data.model.entities.Bill
+import com.tuanhn.smartmovie.data.model.entities.Coupon
 
 import com.tuanhn.smartmovie.databinding.FragmentBookSeatsInformationBinding
 import com.tuanhn.smartmovie.screen.homescreen.MainActivity
 import org.json.JSONArray
 import org.json.JSONObject
 import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.Locale
 
@@ -32,6 +38,12 @@ class BookSeatsInformationFragment : Fragment() {
     private val args: BookSeatsInformationFragmentArgs by navArgs()
 
     private var binding: FragmentBookSeatsInformationBinding? = null
+
+    private var totalCount: Float = 0F
+
+    private var currentSelectedVoucher: Int = 0
+
+    val listCoupon: MutableList<Coupon> = mutableListOf()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -43,9 +55,193 @@ class BookSeatsInformationFragment : Fragment() {
         return binding?.root
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        observeData()
+
+        totalCount = args.total
+
+        binding?.tvTotal?.text = "$totalCount VND"
+
+        val seats = StringBuilder()
+
+        for (item in args.listSeat.indices) {
+            if (item == 0)
+                seats.append(args.listSeat[item])
+            else
+                seats.append(" - ${args.listSeat[item]}")
+        }
+
+        binding?.tvSeat?.text = "$seats"
+
+        binding?.btnLastConfirm?.setOnClickListener {
+
+            val edtEmail = binding?.edtEmail?.text.toString()
+
+            val edtNumber = binding?.edtNumber?.text.toString()
+
+            if (edtEmail.isNullOrEmpty() || edtNumber.isNullOrEmpty()) {
+                Toast.makeText(
+                    context,
+                    "Please fill in the blank field before submit",
+                    Toast.LENGTH_SHORT
+                ).show()
+            } else {
+
+                val dateFormat = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
+
+                val currentDate = dateFormat.format(Date())
+
+                setBillRealTime(seats.toString(), args.cinemaName, currentDate)
+
+                setDataRealTime(edtEmail, currentDate)
+
+                val requestQueue = Volley.newRequestQueue(context)
+
+                sendEmailDirectly(requestQueue, seats)
+
+                val intent = Intent(requireContext(), MainActivity::class.java)
+                startActivity(intent)
+                /*val action =
+                    BookSeatsInformationFragmentDirections.actionBookSeatsInformationToDetailFilm(
+                        args.listFilm
+                    )
+                Navigation.findNavController(view).navigate(action)*/
+            }
+        }
+    }
+
+    private fun observeData() {
+        val db = FirebaseFirestore.getInstance()
+
+        val listCoupon: MutableList<Coupon> = mutableListOf()
+
+        db.collection("coupons").get().addOnSuccessListener { result ->
+            for (document in result) {
+
+                val coupon = document.toObject<Coupon>()
+
+                listCoupon.add(coupon)
+            }
+            getCoupons(db, listCoupon)
+        }
+
+    }
+
+    private fun getCoupons(db: FirebaseFirestore, coupons: List<Coupon>) {
+
+        val list: MutableList<String> = mutableListOf()
+
+        list.add("Voucher")
+
+        val sharedPreferences = context?.getSharedPreferences("current_user", Context.MODE_PRIVATE)
+
+        val currentUser = sharedPreferences?.getString("current_user", "default_value")
+
+        db.collection("userCoupons").get().addOnSuccessListener { result ->
+            for (document in result) {
+                if (document.getString("user") == currentUser) {
+                    val id = document.getLong("couponId")
+
+                    id?.let {
+                        for (item in coupons.indices) {
+                            if (coupons[item].id == id.toInt()) {
+                                if (isValidCoupon(coupons[item])) {
+                                    list.add("Voucher ${coupons[item].discountValue}%")
+                                    listCoupon.add(coupons[item])
+                                }
+                                break
+                            }
+                        }
+                    }
+
+                }
+            }
+            setDataSpinner(list)
+            setEventSpinner()
+        }
+    }
+
+    private fun setDataSpinner(list: List<String>) {
+        val adapter = ArrayAdapter(requireContext(), R.layout.simple_spinner_item, list)
+
+        adapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item)
+
+        binding?.spinner?.adapter = adapter
+    }
+
+    private fun setEventSpinner() {
+
+        binding?.spinner?.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                parent: AdapterView<*>,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                val selectedItem = parent.getItemAtPosition(position).toString()
+
+                val stringNumber = StringBuilder()
+
+                currentSelectedVoucher = if (position != 0)
+                    listCoupon[position - 1].id
+                else
+                    0
+                for (item in selectedItem.indices) {
+                    if (selectedItem[item].isDigit())
+                        stringNumber.append(selectedItem[item])
+                }
+
+                if (stringNumber.toString() != "") {
+
+                    val numberDiscount: Float = 1F - (stringNumber.toString().toFloat() / 100)
+
+                    totalCount = args.total * numberDiscount
+
+                    binding?.tvTotal?.text = "$totalCount VND"
+
+                    Log.d("sd", "sh Selected $totalCount $numberDiscount")
+                } else {
+                    totalCount = args.total
+                    binding?.tvTotal?.text = "$totalCount VND"
+                }
+                Log.d("sd", "success Selected")
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>) {
+                totalCount = args.total
+                binding?.tvTotal?.text = "$totalCount VND"
+                Log.d("sd", "failed Selected")
+            }
+        }
+    }
+
+    private fun isValidCoupon(coupon: Coupon): Boolean {
+        val currentDate = LocalDate.now()
+
+        val startDate = coupon.startDate
+
+        val endDate = coupon.endDate
+
+        var isValidCoupon = false
+
+        isValidCoupon = currentDate.isAfter(convertDatetime(startDate).minusDays(1))
+
+        isValidCoupon = currentDate.isBefore(convertDatetime(endDate).plusDays(1))
+
+        return isValidCoupon
+    }
+
+    private fun convertDatetime(dateString: String): LocalDate {
+
+        val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+
+        return LocalDate.parse(dateString, formatter)
+    }
+
     private fun setBillRealTime(
         seats: String,
-        totalMoney: Float,
         cinemaName: String,
         currentDate: String
     ) {
@@ -56,7 +252,7 @@ class BookSeatsInformationFragment : Fragment() {
 
             val billId = result.size() + 1
 
-            setUp(db, billId, seats, totalMoney, cinemaName, currentDate)
+            setUp(db, billId, seats, totalCount, cinemaName, currentDate)
         }
     }
 
@@ -111,57 +307,6 @@ class BookSeatsInformationFragment : Fragment() {
             }
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        binding?.tvTotal?.text = "${args.total} VND"
-
-        val seats = StringBuilder()
-        for (item in args.listSeat.indices) {
-            if (item == 0)
-                seats.append(args.listSeat[item])
-            else
-                seats.append(" - ${args.listSeat[item]}")
-        }
-
-        binding?.tvSeat?.text = "$seats"
-
-        binding?.btnLastConfirm?.setOnClickListener {
-
-            val edtEmail = binding?.edtEmail?.text.toString()
-
-            val edtNumber = binding?.edtNumber?.text.toString()
-
-            if (edtEmail.isNullOrEmpty() || edtNumber.isNullOrEmpty()) {
-                Toast.makeText(
-                    context,
-                    "Please fill in the blank field before submit",
-                    Toast.LENGTH_SHORT
-                ).show()
-            } else {
-
-                val dateFormat = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
-
-                val currentDate = dateFormat.format(Date())
-
-                setBillRealTime(seats.toString(), args.total, args.cinemaName, currentDate)
-
-                setDataRealTime(edtEmail, currentDate)
-
-                val requestQueue = Volley.newRequestQueue(context)
-
-                sendEmailDirectly(requestQueue, seats)
-
-                val intent = Intent(requireContext(), MainActivity::class.java)
-                startActivity(intent)
-                /*val action =
-                    BookSeatsInformationFragmentDirections.actionBookSeatsInformationToDetailFilm(
-                        args.listFilm
-                    )
-                Navigation.findNavController(view).navigate(action)*/
-            }
-        }
-    }
 
     private fun sendEmailDirectly(requestQueue: RequestQueue, seats: StringBuilder) {
 
@@ -169,7 +314,7 @@ class BookSeatsInformationFragment : Fragment() {
 
         val subject = "${args.cinemaName} sent you ticket"
 
-        val message = "Your Total Cost you paid: ${args.total} VND with seats: $seats"
+        val message = "Your Total Cost you paid: $totalCount VND with seats: $seats"
 
         val url = "https://api.sendgrid.com/v3/mail/send"
 
