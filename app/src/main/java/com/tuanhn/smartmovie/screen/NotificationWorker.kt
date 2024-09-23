@@ -67,7 +67,7 @@ class NotificationWorker(val context: Context, workerParams: WorkerParameters) :
     }
 
     private fun createNotificationChannel() {
-        // Create the NotificationChannel, but only on API 26+ because
+        // CreateOrder the NotificationChannel, but only on API 26+ because
         // the NotificationChannel class is not in the Support Library.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val name = "Name"

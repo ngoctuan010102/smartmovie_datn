@@ -41,12 +41,16 @@ class UserCouponsFragment : Fragment() {
 
     private fun initialAdapter() {
 
-        adapter = CouponAdapter(listOf(), true, this@UserCouponsFragment::saveCoupon)
+        adapter = CouponAdapter(listOf(), true, false, this@UserCouponsFragment::saveCoupon, this@UserCouponsFragment::displayCoupon)
 
         binding?.rcvUserCoupons?.layoutManager =
             LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
 
         binding?.rcvUserCoupons?.adapter = adapter
+    }
+
+    private fun displayCoupon(coupon: Coupon) {
+
     }
 
     private fun observeData() {
@@ -90,7 +94,8 @@ class UserCouponsFragment : Fragment() {
 
                 }
             }
-            adapter?.updateCoupon(listCoupon)
+            val listSet = listCoupon.toSet()
+            adapter?.updateCoupon(listSet.toList())
         }
     }
 }

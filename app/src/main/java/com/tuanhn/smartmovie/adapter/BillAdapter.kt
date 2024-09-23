@@ -17,9 +17,9 @@ class BillAdapter(
 
         private val cinemaName: TextView = view.findViewById(R.id.cinemaName)
 
-        private val seats: TextView = view.findViewById(R.id.tvEndDate)
+        private val seats: TextView = view.findViewById(R.id.tvSeats)
 
-        private val totalMoney: TextView = view.findViewById(R.id.tvdiscountValue)
+        private val totalMoney: TextView = view.findViewById(R.id.totalMoney)
 
         private val bookedDate: TextView = view.findViewById(R.id.bookedDate)
 

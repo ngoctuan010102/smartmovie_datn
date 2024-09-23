@@ -6,6 +6,8 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
+import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -13,6 +15,7 @@ import androidx.lifecycle.Observer
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.squareup.picasso.Picasso
 import com.tuanhn.smartmovie.adapter.ShowTimeAdapter
 import com.tuanhn.smartmovie.data.network.respond.Cinema
@@ -76,8 +79,9 @@ class DetailFilm : Fragment() {
                 is UiState.Success -> {
                     Log.d("API", "SUCCESS")
                     val list = state.data
+                    initialAdapter()
                     for (position in list.indices) {
-                        updateCinema(list[position], position + 1)
+                        updateCinema(list[position], position + 1, list.size)
                     }
                 }
 
@@ -88,133 +92,131 @@ class DetailFilm : Fragment() {
         })
     }
 
-    private fun updateCinema(item: Cinema, position: Int) {
+    private fun setValueCinemaName(cinema: TextView, item: Cinema, adapter: ShowTimeAdapter) {
+
+        cinema.visibility = View.VISIBLE
+
+        cinema.text = "${item.cinema_name} ${item.distance.toInt()}km"
+
+        val listUpdate = item.showings.Standard.times
+
+        adapter.updateShowTime(listUpdate, item.cinema_name)
+    }
+
+    private fun updateCinema(item: Cinema, position: Int, listSize: Int) {
         when (position) {
             1 -> {
-                binding?.cinema1?.text = "${item.cinema_name} ${item.distance.toInt()}km"
-
-                val listUpdate = item.showings.Standard.times
-
-                adapterCinema1?.updateShowTime(listUpdate, item.cinema_name)
-
+                binding?.cinema1?.let { cinema ->
+                    adapterCinema1?.let { adapterCinema ->
+                        setValueCinemaName(cinema, item, adapterCinema)
+                    }
+                }
             }
 
             2 -> {
-                binding?.cinema2?.text = "${item.cinema_name} ${item.distance.toInt()}km"
 
-                val listUpdate = item.showings.Standard.times
-
-                adapterCinema2?.updateShowTime(listUpdate, item.cinema_name)
+                binding?.cinema2?.let { cinema ->
+                    adapterCinema2?.let { adapterCinema ->
+                        setValueCinemaName(cinema, item, adapterCinema)
+                    }
+                }
 
             }
 
             3 -> {
-                binding?.cinema3?.text = "${item.cinema_name} ${item.distance.toInt()}km"
-
-                val listUpdate = item.showings.Standard.times
-
-                adapterCinema3?.updateShowTime(listUpdate, item.cinema_name)
+                binding?.cinema3?.let { cinema ->
+                    adapterCinema3?.let { adapterCinema ->
+                        setValueCinemaName(cinema, item, adapterCinema)
+                    }
+                }
 
             }
 
             4 -> {
-                binding?.cinema4?.text = "${item.cinema_name} ${item.distance.toInt()}km"
-
-                val listUpdate = item.showings.Standard.times
-
-                adapterCinema4?.updateShowTime(listUpdate, item.cinema_name)
+                binding?.cinema4?.let { cinema ->
+                    adapterCinema4?.let { adapterCinema ->
+                        setValueCinemaName(cinema, item, adapterCinema)
+                    }
+                }
 
             }
 
             5 -> {
-                binding?.cinema5?.text = "${item.cinema_name} ${item.distance.toInt()}km"
-
-                val listUpdate = item.showings.Standard.times
-
-                adapterCinema5?.updateShowTime(listUpdate, item.cinema_name)
+                binding?.cinema5?.let { cinema ->
+                    adapterCinema5?.let { adapterCinema ->
+                        setValueCinemaName(cinema, item, adapterCinema)
+                    }
+                }
             }
 
             6 -> {
-                binding?.cinema6?.text = "${item.cinema_name} ${item.distance.toInt()}km"
-
-                val listUpdate = item.showings.Standard.times
-
-                adapterCinema6?.updateShowTime(listUpdate, item.cinema_name)
+                binding?.cinema6?.let { cinema ->
+                    adapterCinema6?.let { adapterCinema ->
+                        setValueCinemaName(cinema, item, adapterCinema)
+                    }
+                }
 
             }
 
             7 -> {
-                binding?.cinema7?.text = "${item.cinema_name} ${item.distance.toInt()}km"
-
-                val listUpdate = item.showings.Standard.times
-
-                adapterCinema7?.updateShowTime(listUpdate, item.cinema_name)
+                binding?.cinema7?.let { cinema ->
+                    adapterCinema7?.let { adapterCinema ->
+                        setValueCinemaName(cinema, item, adapterCinema)
+                    }
+                }
 
             }
 
             8 -> {
-                binding?.cinema8?.text = "${item.cinema_name} ${item.distance.toInt()}km"
-
-                val listUpdate = item.showings.Standard.times
-
-                adapterCinema8?.updateShowTime(listUpdate, item.cinema_name)
+                binding?.cinema8?.let { cinema ->
+                    adapterCinema8?.let { adapterCinema ->
+                        setValueCinemaName(cinema, item, adapterCinema)
+                    }
+                }
 
             }
 
         }
     }
 
+    private fun setAdapter(adapter: ShowTimeAdapter?, rcv: RecyclerView?) {
+        rcv?.layoutManager =
+            LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+        rcv?.adapter = adapter
+    }
+
     private fun initialAdapter() {
-        binding?.let { bind ->
-            bind.cinema1.text = "Cinema 1"
-            bind.cinema2.text = "Cinema 2"
-            bind.cinema3.text = "Cinema 3"
-            bind.cinema4.text = "Cinema 4"
-            bind.cinema5.text = "Cinema 5"
-            bind.cinema6.text = "Cinema 6"
-            bind.cinema7.text = "Cinema 7"
-            bind.cinema8.text = "Cinema 8"
-        }
-
         adapterCinema1 = ShowTimeAdapter(listOf(), args.film, binding?.cinema1?.text.toString())
-        binding?.rcvCinema1?.layoutManager =
-            LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-        binding?.rcvCinema1?.adapter = adapterCinema1
 
-        adapterCinema2 = ShowTimeAdapter(listOf(), args.film,binding?.cinema2?.text.toString())
-        binding?.rcvCinema2?.layoutManager =
-            LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-        binding?.rcvCinema2?.adapter = adapterCinema2
+        setAdapter(adapterCinema1, binding?.rcvCinema1)
+
+        adapterCinema2 = ShowTimeAdapter(listOf(), args.film, binding?.cinema2?.text.toString())
+
+        setAdapter(adapterCinema2, binding?.rcvCinema2)
 
         adapterCinema3 = ShowTimeAdapter(listOf(), args.film, binding?.cinema3?.text.toString())
-        binding?.rcvCinema3?.layoutManager =
-            LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-        binding?.rcvCinema3?.adapter = adapterCinema3
+
+        setAdapter(adapterCinema3, binding?.rcvCinema3)
 
         adapterCinema4 = ShowTimeAdapter(listOf(), args.film, binding?.cinema4?.text.toString())
-        binding?.rcvCinema4?.layoutManager =
-            LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-        binding?.rcvCinema4?.adapter = adapterCinema4
+
+        setAdapter(adapterCinema4, binding?.rcvCinema4)
 
         adapterCinema5 = ShowTimeAdapter(listOf(), args.film, binding?.cinema5?.text.toString())
-        binding?.rcvCinema5?.layoutManager =
-            LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-        binding?.rcvCinema5?.adapter = adapterCinema5
+
+        setAdapter(adapterCinema5, binding?.rcvCinema5)
 
         adapterCinema6 = ShowTimeAdapter(listOf(), args.film, binding?.cinema6?.text.toString())
-        binding?.rcvCinema6?.layoutManager =
-            LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-        binding?.rcvCinema6?.adapter = adapterCinema6
+
+        setAdapter(adapterCinema6, binding?.rcvCinema6)
 
         adapterCinema7 = ShowTimeAdapter(listOf(), args.film, binding?.cinema7?.text.toString())
-        binding?.rcvCinema7?.layoutManager =
-            LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-        binding?.rcvCinema7?.adapter = adapterCinema7
+
+        setAdapter(adapterCinema7, binding?.rcvCinema7)
 
         adapterCinema8 = ShowTimeAdapter(listOf(), args.film, binding?.cinema8?.text.toString())
-        binding?.rcvCinema8?.layoutManager =
-            LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-        binding?.rcvCinema8?.adapter = adapterCinema8
+
+        setAdapter(adapterCinema8, binding?.rcvCinema8)
     }
 
     private fun setUpView(view: View) {
@@ -227,7 +229,7 @@ class DetailFilm : Fragment() {
 
         val videoView = binding?.videoView
 
-        args.film.film_trailer?.let {trailer->
+        args.film.film_trailer?.let { trailer ->
 
             val videoUri: Uri = Uri.parse(trailer)
 

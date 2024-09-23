@@ -6,5 +6,6 @@ data class User(
     val userName: String = "",
     var passWord: String = "",
     val email: String = "",
-    var key: String = ""
+    var key: String = "",
+    var isAdmin: Boolean = false
 )

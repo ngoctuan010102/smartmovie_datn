@@ -5,5 +5,6 @@ data class Coupon(
     val discountValue: Int = 0,
     val startDate: String = "",
     val endDate: String = "",
-    val status: String =""
+    val status: String ="",
+    var limitedCount: Int = 0
 )

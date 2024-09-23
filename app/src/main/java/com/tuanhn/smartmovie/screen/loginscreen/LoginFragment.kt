@@ -17,6 +17,7 @@ import androidx.navigation.Navigation
 import com.google.firebase.firestore.FirebaseFirestore
 import com.tuanhn.smartmovie.R
 import com.tuanhn.smartmovie.databinding.FragmentLoginBinding
+import com.tuanhn.smartmovie.screen.adminscreen.AdminScreen
 import com.tuanhn.smartmovie.screen.homescreen.MainActivity
 import javax.crypto.Cipher
 import javax.crypto.SecretKey
@@ -51,28 +52,36 @@ class LoginFragment : Fragment() {
         binding?.let { bind ->
 
             bind.btnLogin?.setOnClickListener {
+                try {
+                    if (isButtonClicked) return@setOnClickListener
+                    isButtonClicked = true
 
-                if (isButtonClicked) return@setOnClickListener
-                isButtonClicked = true
+                    handler.postDelayed({
+                        isButtonClicked = false
+                    }, 1000)
 
-                handler.postDelayed({
-                    isButtonClicked = false
-                }, 1000)
+                    bind.loginProgressBar.visibility = View.VISIBLE
 
-                bind.loginProgressBar.visibility = View.VISIBLE
+                    val userName = bind.edtUserName.text.toString()
 
-                val userName = bind.edtUserName.text.toString()
+                    val password = bind.edtPassword.text.toString()
 
-                val password = bind.edtPassword.text.toString()
+                    if (userName.isEmpty() || password.isEmpty()) {
 
-                if (userName.isEmpty() || password.isEmpty()) {
+                        Toast.makeText(
+                            context,
+                            "Please fill in the blank field!",
+                            Toast.LENGTH_SHORT
+                        )
+                            .show()
 
-                    Toast.makeText(context, "Please fill in the blank field!", Toast.LENGTH_SHORT)
-                        .show()
-
-                    isButtonClicked = false
-                } else {
-                    checkAccount(view, userName, password)
+                        isButtonClicked = false
+                    } else {
+                        checkAccount(view, userName, password)
+                    }
+                }catch (e: Exception)
+                {
+                    Log.d("Exception", e.toString())
                 }
             }
 
@@ -104,6 +113,9 @@ class LoginFragment : Fragment() {
                     val userName = document.getString("userName")
 
                     val keyString = document.getString("key")
+
+                    val isAdmin = document.getBoolean("isAdmin")
+
                     var key: SecretKey? = null
                     keyString?.let {
                         key = stringToSecretKey(keyString)
@@ -120,6 +132,11 @@ class LoginFragment : Fragment() {
 
                     if (userName == user.userName && existingPassword == user.passWord) {
                         userExists = true
+
+                        isAdmin?.let {
+                            user.isAdmin = isAdmin
+                        }
+
                         break
                     }
 
@@ -137,10 +154,16 @@ class LoginFragment : Fragment() {
 
                     val activity = requireActivity()
 
-                    val intent = Intent(activity.applicationContext, MainActivity::class.java)
+                    if (user.isAdmin)
+                    {
+                        val intent = Intent(activity.applicationContext, AdminScreen::class.java)
+                        startActivity(intent)
+                    }
+                    else {
+                        val intent = Intent(activity.applicationContext, MainActivity::class.java)
 
-                    startActivity(intent)
-
+                        startActivity(intent)
+                    }
                     activity.finish()
 
                 } else {

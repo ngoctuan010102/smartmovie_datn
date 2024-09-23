@@ -3,6 +3,7 @@ package com.tuanhn.smartmovie.adapter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
@@ -12,7 +13,9 @@ import com.tuanhn.smartmovie.data.model.entities.Coupon
 class CouponAdapter(
     private var listCoupon: List<Coupon>,
     private var isUserCoupons: Boolean,
-    private val saveCoupon: (String) -> Unit
+    private var isAdmin: Boolean,
+    private val saveCoupon: (String) -> Unit,
+    private val displayCoupon: (Coupon) -> Unit
 ) : RecyclerView.Adapter<CouponAdapter.ViewHolder>() {
 
     inner class ViewHolder(private val view: View) : RecyclerView.ViewHolder(view) {
@@ -27,6 +30,12 @@ class CouponAdapter(
 
         private val tvSaveCoupon: TextView = view.findViewById(R.id.tvSaveCoupon)
 
+        private val tvStatus: TextView = view.findViewById(R.id.tvStatusChange)
+
+        private val tvLimitedCount: TextView = view.findViewById(R.id.tvlimitedCount)
+
+        private val layoutCoupon: LinearLayout = view.findViewById(R.id.layoutCoupon)
+
         fun onBind(coupon: Coupon) {
 
             if (isUserCoupons)
@@ -38,6 +47,8 @@ class CouponAdapter(
                 }
             }
 
+            tvStatus.text = coupon.status
+
             tvIdCoupon.text = coupon.id.toString()
 
             tvStartDate.text = coupon.startDate
@@ -45,6 +56,15 @@ class CouponAdapter(
             tvEndDate.text = coupon.endDate
 
             tvDiscountValue.text = coupon.discountValue.toString()
+
+            tvLimitedCount.text = coupon.limitedCount.toString()
+
+            if(isAdmin) {
+                tvSaveCoupon.visibility = View.GONE
+                layoutCoupon.setOnClickListener {
+                    displayCoupon(coupon)
+                }
+            }
 
         }
     }

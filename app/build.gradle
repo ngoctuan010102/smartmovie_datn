@@ -53,6 +53,11 @@ android {
 
 dependencies {
 
+    //zalo pay
+    implementation("com.squareup.okhttp3:okhttp:4.6.0")
+
+    implementation("commons-codec:commons-codec:1.14")
+
     //worker
     implementation "androidx.work:work-runtime-ktx:2.8.1"
 
@@ -71,6 +76,8 @@ dependencies {
     implementation 'androidx.room:room-ktx:2.6.1'
 
     implementation 'com.google.firebase:firebase-firestore:25.1.0'
+
+    implementation fileTree(dir: 'D:\\DATN', include: ['*.aar', '*.jar'], exclude: [""])
 
 
     kapt("com.google.dagger:hilt-android-compiler:2.48")

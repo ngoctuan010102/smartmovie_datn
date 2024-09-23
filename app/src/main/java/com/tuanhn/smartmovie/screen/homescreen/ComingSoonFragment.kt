@@ -150,7 +150,7 @@ class ComingSoonFragment : Fragment() {
             .putString("movieId", movie.film_id.toString())
             .build()
 
-        // Create a one-time WorkRequest to trigger at the selected date and time
+        // CreateOrder a one-time WorkRequest to trigger at the selected date and time
         val notificationWorkRequest = OneTimeWorkRequestBuilder<NotificationWorker>()
             .setInitialDelay(delayInMillis, TimeUnit.MILLISECONDS) // Schedule with the delay
             .setInputData(inputData)

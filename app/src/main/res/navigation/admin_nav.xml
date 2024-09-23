@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/admin_nav"
+    app:startDestination="@id/homeAdminFragment">
+
+    <fragment
+        android:id="@+id/homeAdminFragment"
+        android:name="com.tuanhn.smartmovie.HomeAdminFragment"
+        android:label="fragment_home_admin"
+        tools:layout="@layout/fragment_home_admin" >
+        <action
+            android:id="@+id/action_homeAdminFragment_to_couponAdminFragment"
+            app:destination="@id/couponAdminFragment" />
+        <action
+            android:id="@+id/action_homeAdminFragment_to_accountAdminFragment"
+            app:destination="@id/accountAdminFragment" />
+        <action
+            android:id="@+id/action_homeAdminFragment_to_movieAdminFragment"
+            app:destination="@id/movieAdminFragment" />
+        <action
+            android:id="@+id/action_homeAdminFragment_to_billAdminFragment"
+            app:destination="@id/billAdminFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/couponAdminFragment"
+        android:name="com.tuanhn.smartmovie.CouponAdminFragment"
+        android:label="fragment_coupon_admin"
+        tools:layout="@layout/fragment_coupon_admin" />
+    <fragment
+        android:id="@+id/accountAdminFragment"
+        android:name="com.tuanhn.smartmovie.AccountAdminFragment"
+        android:label="fragment_account_admin"
+        tools:layout="@layout/fragment_account_admin" />
+    <fragment
+        android:id="@+id/movieAdminFragment"
+        android:name="com.tuanhn.smartmovie.MovieAdminFragment"
+        android:label="fragment_movie_admin"
+        tools:layout="@layout/fragment_movie_admin" />
+    <fragment
+        android:id="@+id/billAdminFragment"
+        android:name="com.tuanhn.smartmovie.BillAdminFragment"
+        android:label="fragment_bill_admin"
+        tools:layout="@layout/fragment_bill_admin" />
+</navigation>

@@ -51,7 +51,9 @@ class CouponsFragment : Fragment() {
                 }
             } else {
                 for (document in result) {
-                    if (document.getString("user") == currentUser && document.getLong("couponId").toString() == id) {
+                    if (document.getString("user") == currentUser && document.getLong("couponId")
+                            .toString() == id
+                    ) {
 
                     } else {
                         currentUser?.let {
@@ -79,14 +81,16 @@ class CouponsFragment : Fragment() {
 
     private fun initialAdapter() {
 
-        adapter = CouponAdapter(listOf(), false, this@CouponsFragment::saveCoupon)
+        adapter = CouponAdapter(listOf(), false, false, this@CouponsFragment::saveCoupon, this@CouponsFragment::displayCoupon)
 
         binding?.rcvCoupon?.layoutManager =
             LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
 
         binding?.rcvCoupon?.adapter = adapter
     }
+    private fun displayCoupon(coupon: Coupon) {
 
+    }
     private fun observeData() {
         val db = FirebaseFirestore.getInstance()
 

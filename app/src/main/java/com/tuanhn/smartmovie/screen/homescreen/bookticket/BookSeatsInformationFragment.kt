@@ -1,9 +1,13 @@
 package com.tuanhn.smartmovie.screen.homescreen.bookticket
 
 import android.R
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
+import android.os.StrictMode
+import android.os.StrictMode.ThreadPolicy
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -11,7 +15,10 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
+import androidx.annotation.RequiresApi
+import androidx.appcompat.widget.ThemedSpinnerAdapter
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
 import com.android.volley.RequestQueue
 import com.android.volley.Response
@@ -21,11 +28,18 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.toObject
 import com.tuanhn.smartmovie.data.model.entities.Bill
 import com.tuanhn.smartmovie.data.model.entities.Coupon
-
 import com.tuanhn.smartmovie.databinding.FragmentBookSeatsInformationBinding
+import com.tuanhn.smartmovie.payment.Api.CreateOrder
 import com.tuanhn.smartmovie.screen.homescreen.MainActivity
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONObject
+import vn.zalopay.sdk.Environment
+import vn.zalopay.sdk.ZaloPayError
+import vn.zalopay.sdk.ZaloPaySDK
+import vn.zalopay.sdk.listeners.PayOrderListener
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -34,6 +48,7 @@ import java.util.Locale
 
 
 class BookSeatsInformationFragment : Fragment() {
+
 
     private val args: BookSeatsInformationFragmentArgs by navArgs()
 
@@ -72,10 +87,19 @@ class BookSeatsInformationFragment : Fragment() {
             else
                 seats.append(" - ${args.listSeat[item]}")
         }
-
         binding?.tvSeat?.text = "$seats"
 
+        val policy = ThreadPolicy.Builder().permitAll().build()
+        StrictMode.setThreadPolicy(policy)
+
+        IsLoading()
+
+        // ZaloPay SDK Init
+        ZaloPaySDK.init(2553, Environment.SANDBOX)
+
+        // Handle CreateOrder button click
         binding?.btnLastConfirm?.setOnClickListener {
+            val seats = binding?.tvSeat?.text.toString()
 
             val edtEmail = binding?.edtEmail?.text.toString()
 
@@ -88,28 +112,43 @@ class BookSeatsInformationFragment : Fragment() {
                     Toast.LENGTH_SHORT
                 ).show()
             } else {
-
-                val dateFormat = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
-
-                val currentDate = dateFormat.format(Date())
-
-                setBillRealTime(seats.toString(), args.cinemaName, currentDate)
-
-                setDataRealTime(edtEmail, currentDate)
-
-                val requestQueue = Volley.newRequestQueue(context)
-
-                sendEmailDirectly(requestQueue, seats)
-
-                val intent = Intent(requireContext(), MainActivity::class.java)
-                startActivity(intent)
-                /*val action =
-                    BookSeatsInformationFragmentDirections.actionBookSeatsInformationToDetailFilm(
-                        args.listFilm
-                    )
-                Navigation.findNavController(view).navigate(action)*/
+                lifecycleScope.launch {
+                    CreateOrderClickHandler()
+                }
             }
         }
+
+        /*    // Handle Pay button click
+            binding?.btnPay?.setOnClickListener {
+                PayButtonClickHandler()
+            }*/
+    }
+
+    private fun finishPayment() {
+
+
+        val seats = binding?.tvSeat?.text.toString()
+
+        val edtEmail = binding?.edtEmail?.text.toString()
+
+        val edtNumber = binding?.edtNumber?.text.toString()
+
+
+        val dateFormat = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
+
+        val currentDate = dateFormat.format(Date())
+
+        setBillRealTime(seats, args.cinemaName, currentDate)
+
+        setDataRealTime(edtEmail, currentDate)
+
+        val requestQueue = Volley.newRequestQueue(context)
+
+        sendEmailDirectly(requestQueue, seats)
+
+        val intent = Intent(requireContext(), MainActivity::class.java)
+
+        startActivity(intent)
     }
 
     private fun observeData() {
@@ -308,7 +347,7 @@ class BookSeatsInformationFragment : Fragment() {
     }
 
 
-    private fun sendEmailDirectly(requestQueue: RequestQueue, seats: StringBuilder) {
+    private fun sendEmailDirectly(requestQueue: RequestQueue, seats: String) {
 
         val recipient = binding?.edtEmail?.text.toString()
 
@@ -360,4 +399,99 @@ class BookSeatsInformationFragment : Fragment() {
 
         requestQueue.add(request)
     }
+
+    fun IsLoading() {
+
+        binding?.lblZpTransToken?.visibility = View.INVISIBLE
+        binding?.txtToken?.visibility = View.INVISIBLE
+        binding?.btnPay?.visibility = View.INVISIBLE
+    }
+
+    private fun IsDone() {
+        binding?.lblZpTransToken?.visibility = View.VISIBLE
+        binding?.txtToken?.visibility = View.VISIBLE
+        binding?.btnPay?.visibility = View.VISIBLE
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    @SuppressLint("SetTextI18n")
+    suspend fun CreateOrderClickHandler() {
+        withContext(Dispatchers.IO) {
+            val orderApi = CreateOrder()
+            try {
+                val total: Double = totalCount.toDouble()
+                val totalString = String.format("%.0f", total)
+                val data = orderApi.createOrder(totalString)
+                Log.d("Amount", totalString)
+                val code = data.getString("return_code")
+                Log.d("API Response", "${data.toString()} return_code: $code")
+                withContext(Dispatchers.Main) {
+                    binding?.lblZpTransToken?.visibility = View.VISIBLE
+
+                    if (code == "1") {
+                        // binding?.lblZpTransToken?.text = "zptranstoken"
+                        // binding?.txtToken?.text = data.getString("zp_trans_token")
+                        finishPayment()
+                        PayButtonClickHandler()
+                    } else
+                        Log.d("Amount", "totalCount.toString()")
+                }
+
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    fun PayButtonClickHandler() {
+        val token = binding?.txtToken?.text.toString()
+        ZaloPaySDK.getInstance().payOrder(requireActivity(), token, "demozpdk://app", object :
+            PayOrderListener {
+            override fun onPaymentSucceeded(
+                transactionId: String,
+                transToken: String,
+                appTransID: String
+            ) {
+                Log.d("Success", "Success")
+                finishPayment()
+                //   finishPay(transactionId, transToken)
+            }
+
+            override fun onPaymentCanceled(zpTransToken: String, appTransID: String) {/*
+                AlertDialog.Builder(requireContext())
+                    .setTitle("User Cancel PaymentActivity")
+                    .setMessage(String.format("zpTransToken: %s", zpTransToken))
+                    .setPositiveButton("OK", null)
+                    .setNegativeButton("Cancel", null)
+                    .show()*/
+                Log.d("Success", "Cancel")
+            }
+
+            override fun onPaymentError(
+                zaloPayError: ZaloPayError,
+                zpTransToken: String,
+                appTransID: String
+            ) {
+                Log.d("Success", "Error")
+                /*  AlertDialog.Builder(requireContext())
+                      .setTitle("PaymentActivity Fail")
+                      .setMessage(
+                          String.format(
+                              "ZaloPayErrorCode: %s\nTransToken: %s",
+                              zaloPayError.toString(),
+                              zpTransToken
+                          )
+                      )
+                      .setPositiveButton("OK", null)
+                      .setNegativeButton("Cancel", null)
+                      .show()*/
+            }
+        })
+    }
+
+    fun handleNewIntent(intent: Intent) {
+        finishPayment()
+        ZaloPaySDK.getInstance().onResult(intent)
+    }
+
 }

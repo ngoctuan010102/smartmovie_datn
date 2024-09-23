@@ -38,6 +38,7 @@ class RegisterFragment : Fragment() {
 
         binding?.let { bind ->
             bind.btnRegister?.setOnClickListener {
+                try{
 
                 val userName = bind.edtUserName.text.toString()
 
@@ -60,6 +61,9 @@ class RegisterFragment : Fragment() {
                         Toast.makeText(context, "Password didn't match!", Toast.LENGTH_SHORT).show()
                 }
 
+            } catch (e: Exception){
+                Log.d("Exception", e.toString())
+            }
             }
         }
     }
@@ -178,7 +182,7 @@ class RegisterFragment : Fragment() {
                         Toast.makeText(context, "Đăng ký thành công!", Toast.LENGTH_SHORT).show()
 
                         Navigation.findNavController(view)
-                            .navigate(R.id.action_registerFragment_to_loginFragment)
+                            .navigate(R.id.loginFragment)
                     }
                 }
             }
