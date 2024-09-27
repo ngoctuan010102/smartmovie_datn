@@ -1,3 +1,4 @@
+/*
 package com.tuanhn.smartmovie.viewmodels
 
 import androidx.lifecycle.ViewModel
@@ -39,4 +40,4 @@ class ViewModelAPI @Inject constructor(
     fun getStateSearch() = apiRepository.callAPISearch
 
     fun getStateShowTime() = apiRepository.callAPIShowTime
-}
+}*/

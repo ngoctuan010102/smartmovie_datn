@@ -11,12 +11,14 @@ import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.tuanhn.smartmovie.R
+import com.tuanhn.smartmovie.data.model.entities.Seat
 
 class SeatsAdapter(
     private var items: List<String>,
     private var listBookedSeats: List<String>,
     private val updateTotal: (Double, Boolean) -> Unit,
-    private val updateBookedSeats: (String, Boolean) -> Unit
+    private val updateBookedSeats: (String, Boolean) -> Unit,
+    private val listSeat: List<Seat>
 ) : RecyclerView.Adapter<SeatsAdapter.ViewHolder>() {
 
     inner class ViewHolder(private val view: View) : RecyclerView.ViewHolder(view) {
@@ -41,7 +43,7 @@ class SeatsAdapter(
 
                         setSeatColor(item[0], layoutSeat, tvSeat)
 
-                        setEvent(item[0], false)
+                        setEvent(item, false)
                     } else {
 
                         updateBookedSeats(item, true)
@@ -50,7 +52,7 @@ class SeatsAdapter(
 
                         tvSeat.setTextColor(Color.BLACK)
 
-                        setEvent(item[0], true)
+                        setEvent(item, true)
                     }
                 }
             }
@@ -58,21 +60,16 @@ class SeatsAdapter(
         }
     }
 
-    private fun setEvent(item: Char, boolean: Boolean) {
-        when (item) {
-            'A', 'B', 'C' -> {
-               updateTotal(45000.0, boolean)
-            }
-
-            else -> {
-                updateTotal(65000.0, boolean)
-            }
+    private fun setEvent(item: String, isAdd: Boolean) {
+        for (seat in listSeat){
+            if(item == seat.seat_number)
+                updateTotal(seat.price.toDouble(), isAdd)
         }
     }
 
     private fun setSeatColor(item: Char, layoutSeat: LinearLayout, tvSeat: TextView) {
         when (item) {
-            'A', 'B', 'C' -> {
+            'A', 'B' -> {
                 layoutSeat.setBackgroundResource(R.drawable.background_seat_normal)
                 tvSeat.setTextColor(Color.WHITE)
             }

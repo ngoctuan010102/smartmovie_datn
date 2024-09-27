@@ -14,6 +14,12 @@ class ViewModelDB @Inject constructor(
     private val dbRepository: DatabaseRepository
 ) : ViewModel() {
 
+    fun deleteAllFilms(){
+        viewModelScope.launch {
+            dbRepository.deleteAllFilms()
+        }
+    }
+
     fun insertFilm(film: Film) {
         viewModelScope.launch {
             dbRepository.insertFilm(film)

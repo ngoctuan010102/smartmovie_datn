@@ -1,4 +1,4 @@
-package com.tuanhn.smartmovie
+package com.tuanhn.smartmovie.screen.adminscreen
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.Navigation
+import com.tuanhn.smartmovie.R
 import com.tuanhn.smartmovie.databinding.FragmentHomeAdminBinding
 
 
@@ -33,7 +34,63 @@ class HomeAdminFragment : Fragment() {
 
         setMovieEvent(view)
 
+        setRoomEvent(view)
+
+        setSeatEvent(view)
+
+        setAdjustMovieEvent(view)
+
+        setStatisticEvent(view)
     }
+
+    private fun setStatisticEvent(view: View){
+
+        binding?.imgStatistical?.setOnClickListener {
+            toStatisticFragment(view)
+        }
+
+        /* binding?.tvRoomAdmin?.setOnClickListener {
+             toRoomFragment(view)
+         }*/
+
+    }
+
+    private fun setAdjustMovieEvent(view: View){
+
+        binding?.imgAdjustMovie?.setOnClickListener {
+            toAdjustMovieFragment(view)
+        }
+
+       /* binding?.tvRoomAdmin?.setOnClickListener {
+            toRoomFragment(view)
+        }*/
+
+    }
+
+    private fun setRoomEvent(view: View){
+
+        binding?.imgRoomAdmin?.setOnClickListener {
+            toRoomFragment(view)
+        }
+
+        binding?.tvRoomAdmin?.setOnClickListener {
+            toRoomFragment(view)
+        }
+
+    }
+
+    private fun setSeatEvent(view: View){
+
+        binding?.imgSeat?.setOnClickListener {
+            toSeatFragment(view)
+        }
+
+        binding?.tvSeatAdmin?.setOnClickListener {
+            toSeatFragment(view)
+        }
+
+    }
+
     private fun setCouponEvent(view: View){
 
         binding?.imgCoupon?.setOnClickListener {
@@ -91,7 +148,19 @@ class HomeAdminFragment : Fragment() {
         Navigation.findNavController(view).navigate(R.id.action_homeAdminFragment_to_couponAdminFragment)
     }
 
+    private fun toRoomFragment(view: View){
+        Navigation.findNavController(view).navigate(R.id.action_homeAdminFragment_to_roomAdminFragment)
+    }
+    private fun toSeatFragment(view: View){
+        Navigation.findNavController(view).navigate(R.id.action_homeAdminFragment_to_seatAdminFragment)
+    }
     private fun toAccountFragment(view: View){
         Navigation.findNavController(view).navigate(R.id.action_homeAdminFragment_to_accountAdminFragment)
+    }
+    private fun toAdjustMovieFragment(view: View){
+        Navigation.findNavController(view).navigate(R.id.action_homeAdminFragment_to_adjustingMovieAdminFragment)
+    }
+    private fun toStatisticFragment(view: View){
+        Navigation.findNavController(view).navigate(R.id.action_homeAdminFragment_to_statisticalTable)
     }
 }

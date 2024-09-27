@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".CouponAdminFragment">
+    tools:context=".screen.adminscreen.CouponAdminFragment">
 
     <TextView
         android:id="@+id/textView24"

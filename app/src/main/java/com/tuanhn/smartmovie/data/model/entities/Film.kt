@@ -16,9 +16,9 @@ data class Film(
     val film_name: String = "",
     val other_titles: String? = "",
     val releaseDate: String = "",
-    val film_trailer: String? = "",
+    var film_trailer: String? = "",
     val synopsis_long: String = "",
-    val poster: String? = "",
+    var poster: String? = "",
     val still: String? = "",
     val isNowPlaying: Boolean = false,
 ): Parcelable

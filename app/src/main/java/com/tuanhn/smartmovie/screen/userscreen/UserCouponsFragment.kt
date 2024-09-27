@@ -1,4 +1,4 @@
-package com.tuanhn.smartmovie
+package com.tuanhn.smartmovie.screen.userscreen
 
 import android.content.Context
 import android.os.Bundle
@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.toObject
+import com.google.firebase.firestore.ktx.toObject
 import com.tuanhn.smartmovie.adapter.CouponAdapter
 import com.tuanhn.smartmovie.data.model.entities.Coupon
 import com.tuanhn.smartmovie.databinding.FragmentUserCouponsBinding
@@ -35,7 +35,7 @@ class UserCouponsFragment : Fragment() {
         observeData()
     }
 
-    private fun saveCoupon(id: String) {
+    private fun saveCoupon(coupon: Coupon) {
 
     }
 

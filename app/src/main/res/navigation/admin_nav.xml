@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/homeAdminFragment"
-        android:name="com.tuanhn.smartmovie.HomeAdminFragment"
+        android:name="com.tuanhn.smartmovie.screen.adminscreen.HomeAdminFragment"
         android:label="fragment_home_admin"
         tools:layout="@layout/fragment_home_admin" >
         <action
@@ -22,25 +22,70 @@
         <action
             android:id="@+id/action_homeAdminFragment_to_billAdminFragment"
             app:destination="@id/billAdminFragment" />
+        <action
+            android:id="@+id/action_homeAdminFragment_to_roomAdminFragment"
+            app:destination="@id/roomAdminFragment" />
+        <action
+            android:id="@+id/action_homeAdminFragment_to_seatAdminFragment"
+            app:destination="@id/seatAdminFragment" />
+        <action
+            android:id="@+id/action_homeAdminFragment_to_adjustingMovieAdminFragment"
+            app:destination="@id/adjustingMovieAdminFragment" />
+        <action
+            android:id="@+id/action_homeAdminFragment_to_statisticalTable"
+            app:destination="@id/statisticalTable" />
     </fragment>
     <fragment
         android:id="@+id/couponAdminFragment"
-        android:name="com.tuanhn.smartmovie.CouponAdminFragment"
+        android:name="com.tuanhn.smartmovie.screen.adminscreen.CouponAdminFragment"
         android:label="fragment_coupon_admin"
         tools:layout="@layout/fragment_coupon_admin" />
     <fragment
         android:id="@+id/accountAdminFragment"
-        android:name="com.tuanhn.smartmovie.AccountAdminFragment"
+        android:name="com.tuanhn.smartmovie.screen.adminscreen.AccountAdminFragment"
         android:label="fragment_account_admin"
         tools:layout="@layout/fragment_account_admin" />
     <fragment
         android:id="@+id/movieAdminFragment"
-        android:name="com.tuanhn.smartmovie.MovieAdminFragment"
+        android:name="com.tuanhn.smartmovie.screen.adminscreen.MovieAdminFragment"
         android:label="fragment_movie_admin"
-        tools:layout="@layout/fragment_movie_admin" />
+        tools:layout="@layout/fragment_movie_admin" >
+        <action
+            android:id="@+id/action_movieAdminFragment_to_movieShowtimeAdminFragment"
+            app:destination="@id/movieShowtimeAdminFragment" />
+    </fragment>
     <fragment
         android:id="@+id/billAdminFragment"
-        android:name="com.tuanhn.smartmovie.BillAdminFragment"
+        android:name="com.tuanhn.smartmovie.screen.adminscreen.BillAdminFragment"
         android:label="fragment_bill_admin"
         tools:layout="@layout/fragment_bill_admin" />
+    <fragment
+        android:id="@+id/roomAdminFragment"
+        android:name="com.tuanhn.smartmovie.screen.adminscreen.RoomAdminFragment"
+        android:label="fragment_room_admin"
+        tools:layout="@layout/fragment_room_admin" />
+    <fragment
+        android:id="@+id/seatAdminFragment"
+        android:name="com.tuanhn.smartmovie.screen.adminscreen.SeatAdminFragment"
+        android:label="fragment_seat_admin"
+        tools:layout="@layout/fragment_seat_admin" />
+    <fragment
+        android:id="@+id/movieShowtimeAdminFragment"
+        android:name="com.tuanhn.smartmovie.MovieShowtimeAdminFragment"
+        android:label="fragment_movie_showtime_admin"
+        tools:layout="@layout/fragment_movie_showtime_admin" >
+        <argument
+            android:name="film"
+            app:argType="com.tuanhn.smartmovie.data.model.entities.Film" />
+    </fragment>
+    <fragment
+        android:id="@+id/adjustingMovieAdminFragment"
+        android:name="com.tuanhn.smartmovie.AdjustingMovieAdminFragment"
+        android:label="fragment_adjusting_movie_admin"
+        tools:layout="@layout/fragment_adjusting_movie_admin" />
+    <fragment
+        android:id="@+id/statisticalTable"
+        android:name="com.tuanhn.smartmovie.StatisticalTable"
+        android:label="fragment_statistical_table"
+        tools:layout="@layout/fragment_statistical_table" />
 </navigation>

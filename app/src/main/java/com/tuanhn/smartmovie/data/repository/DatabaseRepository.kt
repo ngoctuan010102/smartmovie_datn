@@ -17,11 +17,24 @@ class DatabaseRepository @Inject constructor(
     private val filmDao: FilmDao,
     private val ageRatingDao: AgeRatingDao,
 
-    )  {
+    ) {
 
     suspend fun insertFilm(film: Film) {
         withContext(ioDispatcher) {
-            filmDao.insertFilm(film)
+
+            val currentList = filmDao.getFilms()
+
+            val checkList = currentList.none { currentFilm -> currentFilm.film_id == film.film_id }
+
+            if (checkList) {
+                filmDao.insertFilm(film)
+            }
+        }
+    }
+
+    suspend fun deleteAllFilms(){
+        withContext(ioDispatcher) {
+            filmDao.deleteAllFilms()
         }
     }
 

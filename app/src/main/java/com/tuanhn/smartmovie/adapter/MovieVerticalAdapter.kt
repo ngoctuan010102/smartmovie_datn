@@ -66,7 +66,10 @@ class MovieVerticalAdapter(
 
             tvName.text = item.film_name
 
-            tvOverView.text = item.synopsis_long.slice(0..100)
+            if(item.synopsis_long.length < 100)
+                tvOverView.text = item.synopsis_long
+            else
+                tvOverView.text = item.synopsis_long.slice(0..100)
 
             btnLayout.setOnClickListener {
 

@@ -16,7 +16,6 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.appcompat.widget.ThemedSpinnerAdapter
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
@@ -25,7 +24,7 @@ import com.android.volley.Response
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.toObject
+import com.google.firebase.firestore.ktx.toObject
 import com.tuanhn.smartmovie.data.model.entities.Bill
 import com.tuanhn.smartmovie.data.model.entities.Coupon
 import com.tuanhn.smartmovie.databinding.FragmentBookSeatsInformationBinding
@@ -57,6 +56,8 @@ class BookSeatsInformationFragment : Fragment() {
     private var totalCount: Float = 0F
 
     private var currentSelectedVoucher: Int = 0
+
+    private var token: String? = null
 
     val listCoupon: MutableList<Coupon> = mutableListOf()
 
@@ -134,7 +135,7 @@ class BookSeatsInformationFragment : Fragment() {
         val edtNumber = binding?.edtNumber?.text.toString()
 
 
-        val dateFormat = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
+        val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
 
         val currentDate = dateFormat.format(Date())
 
@@ -310,6 +311,7 @@ class BookSeatsInformationFragment : Fragment() {
         currentUser?.let {
             val item = Bill(
                 billId,
+                args.listFilm.film_id,
                 cinemaName, seats, totalMoney,
                 currentUser,
                 currentDate
@@ -426,11 +428,11 @@ class BookSeatsInformationFragment : Fragment() {
                 val code = data.getString("return_code")
                 Log.d("API Response", "${data.toString()} return_code: $code")
                 withContext(Dispatchers.Main) {
-                    binding?.lblZpTransToken?.visibility = View.VISIBLE
 
                     if (code == "1") {
                         // binding?.lblZpTransToken?.text = "zptranstoken"
                         // binding?.txtToken?.text = data.getString("zp_trans_token")
+                        token = data.getString("zp_trans_token")
                         finishPayment()
                         PayButtonClickHandler()
                     } else
@@ -444,49 +446,32 @@ class BookSeatsInformationFragment : Fragment() {
     }
 
     fun PayButtonClickHandler() {
-        val token = binding?.txtToken?.text.toString()
-        ZaloPaySDK.getInstance().payOrder(requireActivity(), token, "demozpdk://app", object :
-            PayOrderListener {
-            override fun onPaymentSucceeded(
-                transactionId: String,
-                transToken: String,
-                appTransID: String
-            ) {
-                Log.d("Success", "Success")
-                finishPayment()
-                //   finishPay(transactionId, transToken)
-            }
+        token?.let {
+            ZaloPaySDK.getInstance().payOrder(requireActivity(), it, "demozpdk://app", object :
+                PayOrderListener {
+                override fun onPaymentSucceeded(
+                    transactionId: String,
+                    transToken: String,
+                    appTransID: String
+                ) {
+                    Log.d("Success", "Success")
+                    finishPayment()
+                    //   finishPay(transactionId, transToken)
+                }
 
-            override fun onPaymentCanceled(zpTransToken: String, appTransID: String) {/*
-                AlertDialog.Builder(requireContext())
-                    .setTitle("User Cancel PaymentActivity")
-                    .setMessage(String.format("zpTransToken: %s", zpTransToken))
-                    .setPositiveButton("OK", null)
-                    .setNegativeButton("Cancel", null)
-                    .show()*/
-                Log.d("Success", "Cancel")
-            }
+                override fun onPaymentCanceled(zpTransToken: String, appTransID: String) {
+                    Log.d("Success", "Cancel")
+                }
 
-            override fun onPaymentError(
-                zaloPayError: ZaloPayError,
-                zpTransToken: String,
-                appTransID: String
-            ) {
-                Log.d("Success", "Error")
-                /*  AlertDialog.Builder(requireContext())
-                      .setTitle("PaymentActivity Fail")
-                      .setMessage(
-                          String.format(
-                              "ZaloPayErrorCode: %s\nTransToken: %s",
-                              zaloPayError.toString(),
-                              zpTransToken
-                          )
-                      )
-                      .setPositiveButton("OK", null)
-                      .setNegativeButton("Cancel", null)
-                      .show()*/
-            }
-        })
+                override fun onPaymentError(
+                    zaloPayError: ZaloPayError,
+                    zpTransToken: String,
+                    appTransID: String
+                ) {
+                    Log.d("Success", "Error")
+                }
+            })
+        }
     }
 
     fun handleNewIntent(intent: Intent) {

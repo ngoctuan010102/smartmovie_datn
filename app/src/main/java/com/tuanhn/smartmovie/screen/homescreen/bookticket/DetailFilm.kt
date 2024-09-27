@@ -16,19 +16,26 @@ import androidx.navigation.Navigation
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.firestore.FirebaseFirestore
 import com.squareup.picasso.Picasso
 import com.tuanhn.smartmovie.adapter.ShowTimeAdapter
+import com.tuanhn.smartmovie.data.model.entities.Room
+import com.tuanhn.smartmovie.data.model.entities.Showtime
 import com.tuanhn.smartmovie.data.network.respond.Cinema
 import com.tuanhn.smartmovie.databinding.FragmentDetailFilmBinding
-import com.tuanhn.smartmovie.viewmodels.ViewModelAPI
+
 import com.tuanhn4.smartmovie.data.utils.UiState
 import dagger.hilt.android.AndroidEntryPoint
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 
 @AndroidEntryPoint
 class DetailFilm : Fragment() {
     private val args: DetailFilmArgs by navArgs()
 
-    private val viewModelAPI: ViewModelAPI by viewModels()
+    private var listShowtime : MutableList<Showtime> = mutableListOf()
+
+    private var listRoom : MutableSet<Int> = mutableSetOf()
 
     private var binding: FragmentDetailFilmBinding? = null
 
@@ -63,47 +70,69 @@ class DetailFilm : Fragment() {
 
         initialAdapter()
 
-        callAPI()
+        getShowTimeFromFireStore()
+
+     //   callAPI()
     }
 
-    private fun callAPI() {
+    private fun getShowTimeFromFireStore() {
+        val db = FirebaseFirestore.getInstance()
 
-        viewModelAPI.getAPIShowTime(10, args.film.film_id)
+        db.collection("showtimes").get().addOnSuccessListener {result->
 
-        viewModelAPI.getStateShowTime().observe(viewLifecycleOwner, Observer { state ->
-            when (state) {
-                is UiState.Loading -> {
-                    Log.d("API", "LOADING")
+            listShowtime.clear()
+
+            listRoom.clear()
+
+            for(document in result){
+                val showtime = document.toObject(Showtime::class.java)
+                if(showtime.film_id == args.film.film_id)
+                {
+                    listShowtime.add(showtime)
+                    listRoom.add(showtime.room_id)
                 }
+               getRoomFromFireStore()
+            }
+        }
+    }
 
-                is UiState.Success -> {
-                    Log.d("API", "SUCCESS")
-                    val list = state.data
-                    initialAdapter()
-                    for (position in list.indices) {
-                        updateCinema(list[position], position + 1, list.size)
-                    }
-                }
+    private fun getRoomFromFireStore() {
+        val db = FirebaseFirestore.getInstance()
+        val list: MutableList<Room> = mutableListOf()
+        db.collection("rooms").get().addOnSuccessListener { result ->
+            for (document in result) {
+                val room = document.toObject(Room::class.java)
 
-                is UiState.Error -> {
-                    Log.d("API", "FAIL")
+                if (listRoom.contains(room.room_id)) {
+                    list.add(room)
                 }
             }
-        })
+
+            for (item in list.indices){
+                updateCinema(list[item], item+1)
+            }
+        }
     }
 
-    private fun setValueCinemaName(cinema: TextView, item: Cinema, adapter: ShowTimeAdapter) {
+    private fun setValueCinemaName(cinema: TextView, item: Room, adapter: ShowTimeAdapter) {
 
         cinema.visibility = View.VISIBLE
 
-        cinema.text = "${item.cinema_name} ${item.distance.toInt()}km"
+        cinema.text = "Room: ${item.room_name}"
 
-        val listUpdate = item.showings.Standard.times
 
-        adapter.updateShowTime(listUpdate, item.cinema_name)
+        val filterList = listShowtime.filter { it.room_id == item.room_id }
+
+        val timeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
+
+        val sortedList = filterList.sortedBy { LocalTime.parse(it.start_time, timeFormatter) }
+
+        val lastList = sortedList.filter {  LocalTime.parse(it.start_time, timeFormatter).isAfter(LocalTime.now())}
+        adapter.updateShowTime(lastList, item)
     }
 
-    private fun updateCinema(item: Cinema, position: Int, listSize: Int) {
+    //room
+    private fun updateCinema(item: Room, position: Int) {
         when (position) {
             1 -> {
                 binding?.cinema1?.let { cinema ->
@@ -186,39 +215,42 @@ class DetailFilm : Fragment() {
     }
 
     private fun initialAdapter() {
-        adapterCinema1 = ShowTimeAdapter(listOf(), args.film, binding?.cinema1?.text.toString())
+        adapterCinema1 = ShowTimeAdapter(listOf(), args.film, null, false, this@DetailFilm::displayShowtime)
 
         setAdapter(adapterCinema1, binding?.rcvCinema1)
 
-        adapterCinema2 = ShowTimeAdapter(listOf(), args.film, binding?.cinema2?.text.toString())
+        adapterCinema2 = ShowTimeAdapter(listOf(), args.film, null, false, this@DetailFilm::displayShowtime)
 
         setAdapter(adapterCinema2, binding?.rcvCinema2)
 
-        adapterCinema3 = ShowTimeAdapter(listOf(), args.film, binding?.cinema3?.text.toString())
+        adapterCinema3 = ShowTimeAdapter(listOf(), args.film, null, false, this@DetailFilm::displayShowtime)
 
         setAdapter(adapterCinema3, binding?.rcvCinema3)
 
-        adapterCinema4 = ShowTimeAdapter(listOf(), args.film, binding?.cinema4?.text.toString())
+        adapterCinema4 = ShowTimeAdapter(listOf(), args.film, null, false, this@DetailFilm::displayShowtime)
 
         setAdapter(adapterCinema4, binding?.rcvCinema4)
 
-        adapterCinema5 = ShowTimeAdapter(listOf(), args.film, binding?.cinema5?.text.toString())
+        adapterCinema5 = ShowTimeAdapter(listOf(), args.film, null, false, this@DetailFilm::displayShowtime)
 
         setAdapter(adapterCinema5, binding?.rcvCinema5)
 
-        adapterCinema6 = ShowTimeAdapter(listOf(), args.film, binding?.cinema6?.text.toString())
+        adapterCinema6 = ShowTimeAdapter(listOf(), args.film, null, false, this@DetailFilm::displayShowtime)
 
         setAdapter(adapterCinema6, binding?.rcvCinema6)
 
-        adapterCinema7 = ShowTimeAdapter(listOf(), args.film, binding?.cinema7?.text.toString())
+        adapterCinema7 = ShowTimeAdapter(listOf(), args.film,null, false, this@DetailFilm::displayShowtime)
 
         setAdapter(adapterCinema7, binding?.rcvCinema7)
 
-        adapterCinema8 = ShowTimeAdapter(listOf(), args.film, binding?.cinema8?.text.toString())
+        adapterCinema8 = ShowTimeAdapter(listOf(), args.film, null, false, this@DetailFilm::displayShowtime)
 
         setAdapter(adapterCinema8, binding?.rcvCinema8)
     }
 
+    private fun displayShowtime(showtime: Showtime){
+
+    }
     private fun setUpView(view: View) {
 
         Picasso.get()

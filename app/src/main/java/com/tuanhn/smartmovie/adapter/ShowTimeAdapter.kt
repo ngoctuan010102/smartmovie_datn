@@ -10,27 +10,40 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.tuanhn.smartmovie.R
 import com.tuanhn.smartmovie.data.model.entities.Film
+import com.tuanhn.smartmovie.data.model.entities.Room
+import com.tuanhn.smartmovie.data.model.entities.Showtime
 import com.tuanhn.smartmovie.data.network.respond.ShowTime
 import com.tuanhn.smartmovie.screen.homescreen.bookticket.DetailFilmDirections
 
 class ShowTimeAdapter(
-    private var items: List<ShowTime>,
+    private var items: List<Showtime>,
     private val film: Film,
-    private var cinemaName: String
+    private var room: Room?,
+    private var isAdmin: Boolean,
+    private val displayShowtime: (Showtime) -> Unit
 )
 
     : RecyclerView.Adapter<ShowTimeAdapter.ViewHolder>() {
 
     inner class ViewHolder(private val view: View) : RecyclerView.ViewHolder(view) {
         private val tvName = view.findViewById<TextView>(R.id.tvSeat)
-        fun onBind(item: ShowTime) {
-            tvName.text =" ${item.start_time} - ${item.end_time}"
+        fun onBind(item: Showtime) {
+            tvName.text = " ${item.start_time} - ${item.end_time}"
 
             tvName.setOnClickListener {
-
-                val action = DetailFilmDirections.actionDetailFilmToChoosenSeatsFragment(film,item.start_time, cinemaName)
-
-                Navigation.findNavController(view).navigate(action)
+                if (isAdmin) {
+                    displayShowtime(item)
+                } else {
+                    room?.let {
+                        it
+                        val action = DetailFilmDirections.actionDetailFilmToChoosenSeatsFragment(
+                            film,
+                            item.start_time,
+                            it
+                        )
+                        Navigation.findNavController(view).navigate(action)
+                    }
+                }
             }
         }
     }
@@ -42,9 +55,9 @@ class ShowTimeAdapter(
         return ViewHolder(view)
     }
 
-    fun updateShowTime(newShowTime: List<ShowTime>, newCinemaName: String) {
+    fun updateShowTime(newShowTime: List<Showtime>, newRoom: Room) {
 
-        cinemaName = newCinemaName
+        room = newRoom
 
         val diffResult = DiffUtil.calculateDiff(DiffUtilShowTime(items, newShowTime))
         items = newShowTime

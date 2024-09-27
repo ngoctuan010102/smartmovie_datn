@@ -1,4 +1,4 @@
-package com.tuanhn.smartmovie
+package com.tuanhn.smartmovie.screen.adminscreen
 
 import android.R
 import android.os.Bundle
@@ -12,7 +12,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.toObject
+import com.google.firebase.firestore.ktx.toObject
 import com.tuanhn.smartmovie.adapter.CouponAdapter
 import com.tuanhn.smartmovie.data.model.entities.Coupon
 import com.tuanhn.smartmovie.databinding.FragmentCouponAdminBinding
@@ -73,7 +73,8 @@ class CouponAdminFragment : Fragment() {
             val id = binding?.edtID?.text.toString()
             val coupon = getDataFromUI(id.toInt())
             coupon?.let {
-                updateCoupon(coupon)
+                addCoupon(coupon)
+                //updateCoupon(coupon)
             }
         }
 
@@ -121,47 +122,9 @@ class CouponAdminFragment : Fragment() {
         }
     }
 
-    private fun updateCoupon(coupon: Coupon) {
-        val db = FirebaseFirestore.getInstance()
-
-        db.collection("coupons")
-            .whereEqualTo("id", coupon.id)
-            .get()
-            .addOnSuccessListener { querySnapshot ->
-                if (!querySnapshot.isEmpty) {
-                    // Loop through the documents and update each one (if there might be multiple)
-                    for (document in querySnapshot.documents) {
-                        // Update specific fields in the found document
-                        document.reference.update(
-                            mapOf(
-                                "startDate" to coupon.startDate,
-                                "discountValue" to coupon.discountValue,
-                                "endDate" to coupon.endDate,
-                                "status" to coupon.status,
-                                "limitedCount" to coupon.limitedCount
-                            )
-                        ).addOnSuccessListener {
-                            // Update was successful
-                            Log.d("UpdateCoupon", "Document successfully updated!")
-                            observeData()  // Call your method to refresh data
-                        }.addOnFailureListener { e ->
-                            // Failed to update the document
-                            Log.e("UpdateCoupon", "Error updating document: ${e.message}")
-                        }
-                    }
-                } else {
-                    Log.w("UpdateCoupon", "No documents found with id: $id")
-                }
-            }
-            .addOnFailureListener { e ->
-                // Failed to query documents
-                Log.e("UpdateCoupon", "Error retrieving documents: ${e.message}")
-            }
-    }
-
     private fun addCoupon(coupon: Coupon) {
         val db = FirebaseFirestore.getInstance()
-        db.collection("coupons").add(coupon).addOnSuccessListener {
+        db.collection("coupons").document(coupon.id.toString()).set(coupon).addOnSuccessListener {
             observeData()
         }
     }
@@ -280,7 +243,7 @@ class CouponAdminFragment : Fragment() {
 
     }
 
-    private fun saveCoupon(f: String) {
+    private fun saveCoupon(coupon: Coupon) {
 
     }
 }

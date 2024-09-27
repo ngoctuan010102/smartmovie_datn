@@ -23,14 +23,12 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.tuanhn.smartmovie.R
 import com.tuanhn.smartmovie.data.network.respond.SearchFilmRespond
 import com.tuanhn.smartmovie.databinding.FragmentSearchBinding
-import com.tuanhn.smartmovie.viewmodels.ViewModelAPI
 import com.tuanhn4.smartmovie.data.utils.UiState
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class SearchFragment : Fragment() {
 
-    private val viewModelAPI: ViewModelAPI by viewModels()
 
     private lateinit var binding: FragmentSearchBinding
 
@@ -77,7 +75,7 @@ class SearchFragment : Fragment() {
 
     private fun observeData() {
 
-        viewModelAPI.getStateSearch().observe(
+ /*       viewModelAPI.getStateSearch().observe(
             viewLifecycleOwner,
             Observer { state ->
                 when (state) {
@@ -87,7 +85,7 @@ class SearchFragment : Fragment() {
                         adapter?.updateMovies(state.data)
                     }
                 }
-            })
+            })*/
     }
 
 
@@ -135,7 +133,7 @@ class SearchFragment : Fragment() {
 
                     if (query.isNotEmpty()) {
 
-                        callAPI(query)
+                   //     callAPI(query)
 
                         //  queryText = query
 
@@ -151,9 +149,9 @@ class SearchFragment : Fragment() {
         })
     }
 
-    private fun callAPI(query: String) {
+/*    private fun callAPI(query: String) {
         viewModelAPI.getAPISearch(100, query)
-    }
+    }*/
 
 
     private fun setButtonMoveEvent(activity: Activity) {

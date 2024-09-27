@@ -53,8 +53,8 @@
             android:id="@+id/action_choosenSeatsFragment_to_bookSeatsInformation"
             app:destination="@id/bookSeatsInformation" />
         <argument
-            android:name="cinemaName"
-            app:argType="string" />
+            android:name="room"
+            app:argType="com.tuanhn.smartmovie.data.model.entities.Room" />
     </fragment>
     <fragment
         android:id="@+id/bookSeatsInformation"
@@ -140,7 +140,7 @@
         tools:layout="@layout/fragment_coupons" />
     <fragment
         android:id="@+id/userCouponsFragment"
-        android:name="com.tuanhn.smartmovie.UserCouponsFragment"
+        android:name="com.tuanhn.smartmovie.screen.userscreen.UserCouponsFragment"
         android:label="fragment_user_coupons"
         tools:layout="@layout/fragment_user_coupons" />
 </navigation>

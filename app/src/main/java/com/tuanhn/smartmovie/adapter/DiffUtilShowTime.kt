@@ -2,10 +2,11 @@ package com.tuanhn.smartmovie.adapter
 
 
 import androidx.recyclerview.widget.DiffUtil
+import com.tuanhn.smartmovie.data.model.entities.Showtime
 import com.tuanhn.smartmovie.data.network.respond.ShowTime
 
 
-class DiffUtilShowTime(private val oldList: List<ShowTime>, private val newList: List<ShowTime>) : DiffUtil.Callback() {
+class DiffUtilShowTime(private val oldList: List<Showtime>, private val newList: List<Showtime>) : DiffUtil.Callback() {
 
     override fun getOldListSize(): Int {
         return oldList.size

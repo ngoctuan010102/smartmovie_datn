@@ -14,7 +14,7 @@ class CouponAdapter(
     private var listCoupon: List<Coupon>,
     private var isUserCoupons: Boolean,
     private var isAdmin: Boolean,
-    private val saveCoupon: (String) -> Unit,
+    private val saveCoupon: (Coupon) -> Unit,
     private val displayCoupon: (Coupon) -> Unit
 ) : RecyclerView.Adapter<CouponAdapter.ViewHolder>() {
 
@@ -43,7 +43,7 @@ class CouponAdapter(
             else
             {
                 tvSaveCoupon.setOnClickListener {
-                    saveCoupon(coupon.id.toString())
+                    saveCoupon(coupon)
                 }
             }
 

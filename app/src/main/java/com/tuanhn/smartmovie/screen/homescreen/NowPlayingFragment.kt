@@ -13,22 +13,16 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.work.Data
-import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
-import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.QueryDocumentSnapshot
 import com.google.firebase.firestore.QuerySnapshot
-import com.google.type.DateTime
 import com.tuanhn.smartmovie.adapter.MovieVerticalAdapter
 import com.tuanhn.smartmovie.data.model.entities.Favorite
 import com.tuanhn.smartmovie.data.model.entities.Film
 import com.tuanhn.smartmovie.databinding.FragmentViewpager2Binding
 import com.tuanhn.smartmovie.screen.NotificationWorker
-import com.tuanhn.smartmovie.viewmodels.ViewModelAPI
 import com.tuanhn.smartmovie.viewmodels.ViewModelDB
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.Calendar
@@ -37,7 +31,6 @@ import java.util.concurrent.TimeUnit
 @AndroidEntryPoint
 class NowPlayingFragment : Fragment() {
 
-    private val viewModelAPI: ViewModelAPI by viewModels()
 
     private val viewModelDB: ViewModelDB by viewModels()
 
@@ -78,12 +71,6 @@ class NowPlayingFragment : Fragment() {
         }
     }
 
-    private fun addFilm(film: Film, db: FirebaseFirestore) {
-        val documentRef = db.collection("films").document(film.film_name)
-
-        documentRef.set(film)
-    }
-
     private fun checkData(favorite: Favorite, db: FirebaseFirestore, film: Film) {
 
         db.collection("favoriteFilms")
@@ -107,7 +94,6 @@ class NowPlayingFragment : Fragment() {
                     Log.d("delete", "finished")
                 } else
                     setData(favorite, db)
-                addFilm(film, db)
             }
     }
 
@@ -176,7 +162,8 @@ class NowPlayingFragment : Fragment() {
         currentUser = sharedPreferences?.getString("current_user", "default_value")
 
 
-        viewModelAPI.getAPIFilmNowShowing(100)
+        //viewModelAPI.getAPIFilmNowShowing(100)
+        getDataFromFirestore()
 
         //initial adapter
         adapterVertical = MovieVerticalAdapter(
@@ -221,6 +208,21 @@ class NowPlayingFragment : Fragment() {
                         }
                     })
                 }*/
+    }
+
+    private fun getDataFromFirestore() {
+
+        val db = FirebaseFirestore.getInstance()
+
+        viewModelDB.deleteAllFilms()
+
+        db.collection("films").get().addOnSuccessListener { result ->
+            for (document in result) {
+                val newFilm = document.toObject(Film::class.java)
+
+                viewModelDB.insertFilm(newFilm)
+            }
+        }
     }
 
     private fun pickDateTime(movie: Film) {
@@ -295,98 +297,20 @@ class NowPlayingFragment : Fragment() {
     }
 
     private fun observeData() {
+
         with(viewModelDB) {
             getAllFilms().observe(viewLifecycleOwner, Observer { list ->
 
                 val filterList: MutableList<Film> = mutableListOf()
 
                 for (item in list) {
-                    if (item.isNowPlaying)
-                        filterList.add(item)
+                    filterList.add(item)
                 }
 
                 adapterVertical?.let { adapter ->
                     adapter.updateMovies(filterList)
                 }
             })
-
-            /*getAllFavorite().observe(viewLifecycleOwner, Observer { listFavorite ->
-
-                adapterHorizontal?.let { adapter ->
-
-                    adapter.updateFavorite(listFavorite)
-                }
-
-                adapterVertical?.let { adapter ->
-
-                    adapter.updateFavorite(listFavorite)
-                }
-            })
-        }*/
         }
     }
-
-
-    /*
-        override fun onDestroyView() {
-            super.onDestroyView()
-            binding = null
-        }
-
-        override fun initialAdapter() {
-            adapterHorizontal =
-                MovieHorizontalAdapter(
-                    this@NowPlayingFragment::solveFavorite,
-                    listOf()
-                )
-
-            adapterVertical = MovieVerticalAdapter(
-                this@NowPlayingFragment::solveFavorite,
-                listOf()
-            )
-
-            binding?.let { bind ->
-
-                bind.recyclerView.layoutManager =
-                    LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
-
-                bind.recyclerView.adapter = adapterVertical
-            }
-        }
-
-        override fun changeListView(isGridLayout: Boolean) {
-
-            binding?.let { bind ->
-                if (isGridLayout) {
-
-                    with(bind) {
-                        adapterHorizontal?.let {adapter->
-                            position = adapter.currentPosition
-                        }
-
-                        recyclerView.layoutManager =
-                            LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
-
-                        recyclerView.adapter = adapterVertical
-
-                        recyclerView.scrollToPosition(position)
-                    }
-                } else {
-
-                    with(bind) {
-
-                        adapterVertical?.let {adapter->
-                            position = adapter.currentPosition
-                        }
-
-                        recyclerView.layoutManager = GridLayoutManager(context, 2)
-
-                        recyclerView.adapter = adapterHorizontal
-
-                        recyclerView.scrollToPosition(position - 1)
-                    }
-                }
-            }
-        }*/
-
 }

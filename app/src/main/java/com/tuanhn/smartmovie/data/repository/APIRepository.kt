@@ -1,3 +1,4 @@
+/*
 package com.tuanhn.smartmovie.data.repository
 
 import android.util.Log
@@ -110,7 +111,7 @@ class APIRepository @Inject constructor(
                 )
                 if (respond.isSuccessful) {
                     val films = respond.body()?.films
-                    films?.let {films->
+                    films?.let { films ->
                         _callAPISearch.postValue(UiState.Success(films))
                     }
                 } else {
@@ -208,60 +209,60 @@ class APIRepository @Inject constructor(
                     n
                 )
                 Log.d("sscccds", response.body()?.films.toString())
-                    response.body()?.films?.let { listFilm ->
-                        for (film in listFilm) {
-                            val releaseDate = film.release_dates
+                response.body()?.films?.let { listFilm ->
+                    for (film in listFilm) {
+                        val releaseDate = film.release_dates
 
-                            val imagesJson = Gson().toJson(film.images)
+                        val imagesJson = Gson().toJson(film.images)
 
-                            val images = Gson().fromJson(imagesJson, Images::class.java)
+                        val images = Gson().fromJson(imagesJson, Images::class.java)
 
-                            val poster: String? =
-                                images.poster?.values?.firstOrNull()?.medium?.film_image
+                        val poster: String? =
+                            images.poster?.values?.firstOrNull()?.medium?.film_image
 
-                            val still: String? =
-                                images.still?.values?.firstOrNull()?.medium?.film_image
+                        val still: String? =
+                            images.still?.values?.firstOrNull()?.medium?.film_image
 
 
-                            val newFilm = Film(
-                                0,
-                                film.film_id,
-                                film.imdb_id,
-                                film.imdb_title_id,
-                                film.film_name,
-                                film.other_titles.toString(),
-                                releaseDate[0].release_date,
-                                film.film_trailer,
-                                film.synopsis_long,
-                                poster,
-                                still,
-                                true
-                            )
+                        val newFilm = Film(
+                            0,
+                            film.film_id,
+                            film.imdb_id,
+                            film.imdb_title_id,
+                            film.film_name,
+                            film.other_titles.toString(),
+                            releaseDate[0].release_date,
+                            film.film_trailer,
+                            film.synopsis_long,
+                            poster,
+                            still,
+                            true
+                        )
 
-                            val ageRating = film.age_rating
+                        val ageRating = film.age_rating
 
-                            val newAgeRating = AgeRating(
-                                0,
-                                film.film_id,
-                                ageRating[0].rating,
-                                ageRating[0].age_rating_image,
-                                ageRating[0].age_advisory
-                            )
+                        val newAgeRating = AgeRating(
+                            0,
+                            film.film_id,
+                            ageRating[0].rating,
+                            ageRating[0].age_rating_image,
+                            ageRating[0].age_advisory
+                        )
 
-                            val list = filmDao.getFilms()
+                        val list = filmDao.getFilms()
 
-                            val checkList =
-                                list.none { film -> film.film_id == newFilm.film_id }
+                        val checkList =
+                            list.none { film -> film.film_id == newFilm.film_id }
 
-                            if (checkList) {
-                                filmDao.insertFilm(newFilm)
-                                ageRatingDao.insertAgeRating(newAgeRating)
-                            }
+                        if (checkList) {
+                            filmDao.insertFilm(newFilm)
+                            ageRatingDao.insertAgeRating(newAgeRating)
                         }
+                    }
                 }
             } catch (e: Exception) {
                 Log.d("SH", "EFailed")
             }
         }
     }
-}
+}*/

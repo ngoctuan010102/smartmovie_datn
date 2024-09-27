@@ -60,7 +60,7 @@ class HomeFragment : Fragment() {
         val adapter = ViewPagerAdapter(requireActivity())
 
         adapter.addFragment(NowPlayingFragment(), "Now Playing")
-        adapter.addFragment(ComingSoonFragment(), "Coming Soon")
+      //  adapter.addFragment(ComingSoonFragment(), "Coming Soon")
 
         viewPager?.adapter = adapter
 

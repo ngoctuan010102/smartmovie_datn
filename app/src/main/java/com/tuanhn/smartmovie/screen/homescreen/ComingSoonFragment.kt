@@ -1,3 +1,4 @@
+/*
 package com.tuanhn.smartmovie.screen.homescreen
 
 import android.app.DatePickerDialog
@@ -19,7 +20,6 @@ import com.tuanhn.smartmovie.adapter.MovieVerticalAdapter
 import com.tuanhn.smartmovie.data.model.entities.Film
 import com.tuanhn.smartmovie.databinding.FragmentViewpager2Binding
 import com.tuanhn.smartmovie.screen.NotificationWorker
-import com.tuanhn.smartmovie.viewmodels.ViewModelAPI
 import com.tuanhn.smartmovie.viewmodels.ViewModelDB
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.Calendar
@@ -28,7 +28,6 @@ import java.util.concurrent.TimeUnit
 @AndroidEntryPoint
 class ComingSoonFragment : Fragment() {
 
-    private val viewModelAPI: ViewModelAPI by viewModels()
 
     private val viewModelDB: ViewModelDB by viewModels()
 
@@ -44,17 +43,21 @@ class ComingSoonFragment : Fragment() {
         binding = FragmentViewpager2Binding.inflate(inflater, container, false)
         return binding?.root
     }
+
     private fun solveFavorite(film: Film) {
 
     }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModelAPI.getAPIFilmComingSoon(100)
+        //   viewModelAPI.getAPIFilmComingSoon(100)
 
         //initial adapter
-        adapterVertical = MovieVerticalAdapter(listOf(), this@ComingSoonFragment::solveFavorite,
-            this@ComingSoonFragment::pickDateTime, false)
+        adapterVertical = MovieVerticalAdapter(
+            listOf(), this@ComingSoonFragment::solveFavorite,
+            this@ComingSoonFragment::pickDateTime, false
+        )
 
         binding?.recyclerView?.layoutManager =
             LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
@@ -72,7 +75,8 @@ class ComingSoonFragment : Fragment() {
             }
         }
         //load more data
-        /*        binding?.let { bind ->
+        */
+/*        binding?.let { bind ->
 
                     bind.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
 
@@ -90,8 +94,10 @@ class ComingSoonFragment : Fragment() {
                             }
                         }
                     })
-                }*/
+                }*//*
+
     }
+
     private fun pickDateTime(movie: Film) {
         val calendar = Calendar.getInstance()
 
@@ -182,7 +188,8 @@ class ComingSoonFragment : Fragment() {
         }
     }
 
-    /*
+    */
+/*
         override fun onDestroyView() {
             super.onDestroyView()
             binding = null
@@ -242,6 +249,7 @@ class ComingSoonFragment : Fragment() {
                     }
                 }
             }
-        }*/
+        }*//*
 
-}
+
+}*/

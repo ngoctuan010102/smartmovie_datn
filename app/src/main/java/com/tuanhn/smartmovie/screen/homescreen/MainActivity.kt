@@ -1,19 +1,12 @@
 package com.tuanhn.smartmovie.screen.homescreen
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import androidx.activity.viewModels
-import androidx.navigation.NavDirections
-import androidx.navigation.Navigation
-import androidx.navigation.Navigation.findNavController
-import androidx.navigation.findNavController
+import androidx.appcompat.app.AppCompatActivity
 import com.tuanhn.smartmovie.R
 import com.tuanhn.smartmovie.databinding.ActivityMainBinding
 import com.tuanhn.smartmovie.screen.homescreen.bookticket.BookSeatsInformationFragment
-import com.tuanhn.smartmovie.viewmodels.ViewModelAPI
-import com.tuanhn.smartmovie.viewmodels.ViewModelDB
 import dagger.hilt.android.AndroidEntryPoint
 import vn.zalopay.sdk.ZaloPaySDK
 

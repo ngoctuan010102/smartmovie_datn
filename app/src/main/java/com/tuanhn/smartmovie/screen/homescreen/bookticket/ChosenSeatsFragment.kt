@@ -15,6 +15,7 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.firestore.FirebaseFirestore
 import com.tuanhn.smartmovie.adapter.SeatsAdapter
+import com.tuanhn.smartmovie.data.model.entities.Seat
 import com.tuanhn.smartmovie.databinding.FragmentChoosenSeatsBinding
 import dagger.hilt.android.AndroidEntryPoint
 import java.text.SimpleDateFormat
@@ -31,6 +32,10 @@ class ChosenSeatsFragment : Fragment() {
     private var adapter: SeatsAdapter? = null
 
     private var listSeats: MutableList<String> = mutableListOf()
+
+    private val listSeat: MutableList<Seat> = mutableListOf()
+
+    private val listBookedSeat: MutableList<String> = mutableListOf()
 
     private var totalCount: Double = 0.0
 
@@ -57,9 +62,9 @@ class ChosenSeatsFragment : Fragment() {
 
                 val action =
                     ChosenSeatsFragmentDirections.actionChoosenSeatsFragmentToBookSeatsInformation(
-                        listSeats.toTypedArray(),
+                        listBookedSeat.toTypedArray(),
                         totalCount.toFloat(),
-                        args.cinemaName,
+                        args.room.room_name,
                         args.time,
                         args.film
                     )
@@ -71,15 +76,33 @@ class ChosenSeatsFragment : Fragment() {
     }
 
     private fun setData() {
-        val list = listOf("A", "B", "C", "D", "E", "F", "G", "H")
-        val listSeats: MutableList<String> = mutableListOf()
-        for (j in 0..7) {
-            for (i in 11 downTo 1) {
-                listSeats.add("${list[j]}${i}")
+        val db = FirebaseFirestore.getInstance()
+
+        db.collection("seats").get().addOnSuccessListener { result ->
+
+            listSeat.clear()
+
+            listSeats.clear()
+            for (document in result) {
+                val seat = document.toObject(Seat::class.java)
+
+                if (seat.room_id == args.room.room_id) {
+
+                    listSeat.add(seat)
+
+                    listSeats.add(seat.seat_number)
+                }
             }
         }
-
-      //  adapter?.updateSeats(listSeats, listOf())
+        /*     val list = listOf("A", "B", "C", "D", "E", "F", "G", "H")
+             val listSeats: MutableList<String> = mutableListOf()
+             for (j in 0..7) {
+                 for (i in 11 downTo 1) {
+                     listSeats.add("${list[j]}${i}")
+                 }
+             }
+     */
+        //  adapter?.updateSeats(listSeats, listOf())
 
         getDataRealTime(listSeats)
 
@@ -111,9 +134,9 @@ class ChosenSeatsFragment : Fragment() {
 
     private fun updateBookedSeats(seat: String, isAdd: Boolean) {
         if (isAdd)
-            listSeats.add(seat)
+            listBookedSeat.add(seat)
         else
-            listSeats.remove(seat)
+            listBookedSeat.remove(seat)
     }
     /*
         private fun clearDataRealTime() {
@@ -161,7 +184,7 @@ class ChosenSeatsFragment : Fragment() {
         // Tham chiếu đến document chứa thông tin các ghế đã đặt
         val documentRef = db.collection("bookedSeats")
             .document(currentDate)
-            .collection(args.cinemaName)
+            .collection(args.room.room_name)
             .document(args.time)
 
         // Lấy dữ liệu từ document
@@ -220,7 +243,8 @@ class ChosenSeatsFragment : Fragment() {
             listOf(),
             listOf(),
             this@ChosenSeatsFragment::updateTotalMoney,
-            this@ChosenSeatsFragment::updateBookedSeats
+            this@ChosenSeatsFragment::updateBookedSeats,
+            listSeat
         )
         binding?.rcvSeats?.layoutManager = GridLayoutManager(context, 11)
         binding?.rcvSeats?.adapter = adapter

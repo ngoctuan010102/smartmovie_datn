@@ -19,6 +19,7 @@ import com.tuanhn.smartmovie.R
 import com.tuanhn.smartmovie.databinding.FragmentLoginBinding
 import com.tuanhn.smartmovie.screen.adminscreen.AdminScreen
 import com.tuanhn.smartmovie.screen.homescreen.MainActivity
+import com.tuanhn.smartmovie.screen.isInternetAvailable
 import javax.crypto.Cipher
 import javax.crypto.SecretKey
 import javax.crypto.spec.SecretKeySpec
@@ -45,8 +46,12 @@ class LoginFragment : Fragment() {
 
         binding?.btnRegister?.setOnClickListener {
 
-            Navigation.findNavController(view)
-                .navigate(R.id.action_loginFragment_to_registerFragment)
+            try {
+                Navigation.findNavController(view)
+                    .navigate(R.id.action_loginFragment_to_registerFragment)
+            }catch(e: Exception){
+                Log.d("FAILED","Failed to start")
+            }
         }
 
         binding?.let { bind ->
@@ -66,7 +71,7 @@ class LoginFragment : Fragment() {
 
                     val password = bind.edtPassword.text.toString()
 
-                    if (userName.isEmpty() || password.isEmpty()) {
+                    if (userName.isEmpty() || password.isEmpty() ) {
 
                         Toast.makeText(
                             context,
@@ -74,9 +79,17 @@ class LoginFragment : Fragment() {
                             Toast.LENGTH_SHORT
                         )
                             .show()
-
+                        binding?.loginProgressBar?.visibility = View.GONE
                         isButtonClicked = false
-                    } else {
+                    }
+                    else if(!isInternetAvailable.isInternetAvailable(requireContext())){
+                        Toast.makeText(
+                            context,
+                            "The internet is not available!",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        binding?.loginProgressBar?.visibility = View.GONE
+                    }else {
                         checkAccount(view, userName, password)
                     }
                 }catch (e: Exception)

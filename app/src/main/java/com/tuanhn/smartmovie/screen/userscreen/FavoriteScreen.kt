@@ -11,15 +11,11 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.QueryDocumentSnapshot
 import com.google.firebase.firestore.QuerySnapshot
-import com.google.firebase.firestore.toObject
-import com.tuanhn.smartmovie.R
 import com.tuanhn.smartmovie.adapter.MovieVerticalAdapter
 import com.tuanhn.smartmovie.data.model.entities.Favorite
 import com.tuanhn.smartmovie.data.model.entities.Film
 import com.tuanhn.smartmovie.databinding.FragmentFavoriteScreenBinding
-import com.tuanhn.smartmovie.databinding.FragmentViewpager2Binding
 import java.util.Calendar
 
 class FavoriteScreen : Fragment() {
